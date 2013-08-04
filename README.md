@@ -38,6 +38,12 @@ http://lab.unicast.ne.jp/
 Tumblr  
 http://tumblr.pg1x.com/
 
+## その他いろいろ
+
+### Mac
+
+![](Macのショートカット記号.png)
+
 ## リンク集
 
 ### Markdown
