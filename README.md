@@ -6,28 +6,28 @@ wnoguchiの公開してもいいドキュメントを入れていくリポジト
 
 ## 私について
 
-GitHub
+GitHub  
 https://github.com/wnoguchi
 
-Gist
+Gist  
 https://gist.github.com/wnoguchi
 
-Qiita
+Qiita  
 http://qiita.com/wnoguchi
 
-Twitter
+Twitter  
 https://twitter.com/wnoguchi
 
-Facebook
+Facebook  
 https://www.facebook.com/watarunoguchi.0727
 
-ブログ、HP
-http://www.pg1x.com/
+ブログ、HP  
+http://www.pg1x.com/  
 http://blog.pg1x.com/
 
-所属
-http://www.unicast.ne.jp/
+所属  
+http://www.unicast.ne.jp/  
 http://lab.unicast.ne.jp/
 
-Tumblr
+Tumblr  
 http://tumblr.pg1x.com/
