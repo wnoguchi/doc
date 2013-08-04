@@ -10,8 +10,8 @@
 
 ### アカウントアクティビティ
 
-請求料金まるわかり。
-
+請求料金まるわかり。  
+結構リアルタイムにわかるらしいので心配症な人にも安心。  
 [Account Activity](https://portal.aws.amazon.com/gp/aws/developer/account?ie=UTF8&action=activity-summary#)
 
 ## リンク集
@@ -19,4 +19,3 @@
 ### コマーシャル
 
 - [AWS Management Console | アマゾン ウェブ サービス（AWS 日本語）](https://aws.amazon.com/jp/console/)
-

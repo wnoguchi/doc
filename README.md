@@ -6,6 +6,12 @@ wnoguchiの公開してもいいドキュメントを入れていくリポジト
 
 ## 私について
 
+### 紹介
+
+なんとかしがみついて生きてるコミュ障プログラマー、ネットワークエンジニアのはしくれ。こんなクズがよく生きてるなって思います。
+
+### ソーシャルアカウント
+
 GitHub  
 https://github.com/wnoguchi
 
@@ -31,3 +37,11 @@ http://lab.unicast.ne.jp/
 
 Tumblr  
 http://tumblr.pg1x.com/
+
+## リンク集
+
+### Markdown
+
+#### [GitHub Flavored Markdown · GitHub Help](https://help.github.com/articles/github-flavored-markdown)  
+
+MacではエディタはMouがよさげ。
