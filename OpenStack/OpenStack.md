@@ -8,9 +8,7 @@ OpenStackを導入するにあたって参考にさせていただいたサイ�
 
 - CentOS 6.4 x64
 
-### Installation
-
-#### IPアドレス固定化
+### IPアドレス固定化
 
 ```
 # /etc/sysconfig/network-scripts/ifcfg-eth0
@@ -20,7 +18,7 @@ NETMASK=255.255.255.0
 GATEWAY=192.168.0.1
 ```
 
-#### IPv6無効化
+### IPv6無効化
 
 コメントアウトもしくは削除。
 
@@ -30,7 +28,7 @@ GATEWAY=192.168.0.1
 #::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 ```
 
-#### SELinux無効化
+### SELinux無効化
 
 省略。
 

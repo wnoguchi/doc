@@ -29,7 +29,7 @@ index 0000000..4f6fe9e
 +[default]
 +libvirt_type=kvm
 diff --git a/nova.conf b/nova.conf
-index 5161339..67a516d 100644
+index 5161339..2dbd25b 100644
 --- a/nova.conf
 +++ b/nova.conf
 @@ -1,28 +1,81 @@
@@ -41,7 +41,7 @@ index 5161339..67a516d 100644
 -dhcpbridge = /usr/bin/nova-dhcpbridge
 -dhcpbridge_flagfile = /etc/nova/nova.conf
 +verbose=true
-+my_ip=192.168.10.50
++my_ip=192.168.0.10
 +allow_admin_api=true
 +api_paste_config=/etc/nova/api-paste.ini
 +instances_path=/var/lib/nova/instances
@@ -85,8 +85,8 @@ index 5161339..67a516d 100644
 +use_ipv6=false
 +
 +#vnc
-+novncproxy_base_url=http://192.168.10.60:6080/vnc_auto.html
-+xvpvncproxy_base_url=http://192.168.10.60:6081/console
++novncproxy_base_url=http://192.168.0.10:6080/vnc_auto.html
++xvpvncproxy_base_url=http://192.168.0.10:6081/console
 +vncserver_proxyclient_address=127.0.0.1
 +vncserver_listen=0.0.0.0
 +vnc_keymap=ja
