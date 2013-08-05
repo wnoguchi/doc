@@ -1,8 +1,8 @@
+## MySQL
+
+```
 service mysqld start
 chkconfig mysqld on
-
-GRANT ALL PRIVILEGES ON *.* TO root@stack01 IDENTIFIED BY 'nova' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
 
 MySQLインストール時にそのホスト名で予めレコードが作成されている模様。
 ERROR 1133 (42000) at line 1: Can't find any matching row in the user table
@@ -11,33 +11,38 @@ mysql -uroot -e "set password for root@localhost=password('nova');"
 mysql -uroot -pnova -e "set password for root@127.0.0.1=password('nova');"
 mysql -uroot -pnova -e "GRANT ALL PRIVILEGES ON *.* TO root@stack01 IDENTIFIED BY 'nova' WITH GRANT OPTION;"
 mysql -uroot -pnova -e "set password for root@stack01=password('nova');"
+```
 
-
+```
 service memcached start
 chkconfig memcached on
+```
 
-
+```
 yum install qpid-cpp-server -y
 sed -i 's/auth=yes/auth=no/' /etc/qpidd.conf
 service qpidd restart
 chkconfig qpidd on
+```
 
-
+```
 yum install -y iscsi-initiator-utils qemu-kvm libvirt bridge-utils libvirt-python avahi
 service messagebus restart
 service avahi-daemon restart
 service libvirtd restart
 service messagebus start
 service avahi-daemon start
+```
 
-
-
+```
 yum install -y openstack-keystone
 cp -a /etc/keystone /etc/keystone_bak
+```
 
+
+```
 vi /etc/keystone/keystone.conf
-
-
+```
 
 ```
 diff --git a/keystone.conf b/keystone.conf
@@ -187,7 +192,7 @@ index ff2dafb..a6d2810 100644
 ```
 
 
-
+```
 MYSQL_PASS_KEYSTONE=password
 NOVA_CONTOLLER_HOSTNAME=stack01
 mysql -uroot -pnova -e "drop database if exists keystone;"
@@ -196,18 +201,21 @@ mysql -uroot -pnova -e "grant all privileges on keystone.* to 'keystone'@'%' ide
 mysql -uroot -pnova -e "grant all privileges on keystone.* to 'keystone'@'localhost' identified by '$MYSQL_PASS_KEYSTONE';"
 mysql -uroot -pnova -e "grant all privileges on keystone.* to 'keystone'@'$NOVA_CONTOLLER_HOSTNAME' identified by '$MYSQL_PASS_KEYSTONE';"
 keystone-manage db_sync
+```
 
-
+```
 chown keystone:keystone /var/log/keystone -R
 service openstack-keystone restart
 chkconfig openstack-keystone on
 service openstack-keystone status
 keystone が停止していますが PID ファイルが残っています
+```
 
 [GrizzlyのKeystoneインストールについて - Google グループ](https://groups.google.com/forum/#!msg/openstack-ja/DO46zPQ9Wrw/mYkSBSw0UiwJ)
 
-chown -R keystone:keystone /var/log/keystone
+デバッグする。
 
+```
 [root@wnoguchi samba]# chsh -s /bin/bash keystone
 keystone のシェルを変更します。
 シェルを変更しました。
@@ -247,14 +255,22 @@ Traceback (most recent call last):
   File "/usr/lib/python2.6/site-packages/pkg_resources.py", line 1948, in load
     entry = __import__(self.module_name, globals(),globals(), ['__name__'])
 ImportError: No module named access
+```
 
+iptables止めてみる。
 
+```
 [root@stack01 samba]# service iptables stop
 iptables: ファイアウォールルールを消去中:                  [  OK  ]
 iptables: チェインをポリシー ACCEPT へ設定中nat mangle filt[  OK  ]
 iptables: モジュールを取り外し中:                          [  OK  ]
 [root@stack01 samba]# chkconfig iptables off
+```
 
+症状変わらず。
+epel正しく設定してないのがいけなかった。
+
+```
 rpm -ivh http://ftp.riken.jp/Linux/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm
 cd /etc/yum.repos.d/
 cat <<EOF >/etc/yum.repos.d/openstack-grizzly.repo
@@ -266,15 +282,13 @@ skip_if_unavailable=1
 gpgcheck=0
 EOF
 yum -y update
+```
 
 python-migrateでエラーを吐き出す。
 
-[Bug #1159038 “Crash on start with SQLalchemy 0.8” : Bugs : Keystone](https://bugs.launchpad.net/keystone/+bug/1159038)
-[GrizzlyのKeystoneインストールについて - Google グループ](https://groups.google.com/forum/#!msg/openstack-ja/DO46zPQ9Wrw/mYkSBSw0UiwJ)
-
-[SIOS "OSSよろず" ブログ出張所: Red Hat のコミュニティ版 OpenStack ディストリビューション 「RDO」を試す。](http://sios-oss.blogspot.jp/2013/05/red-hat-openstack-rdo.html)
-
-
+- [Bug #1159038 “Crash on start with SQLalchemy 0.8” : Bugs : Keystone](https://bugs.launchpad.net/keystone/+bug/1159038)
+- [GrizzlyのKeystoneインストールについて - Google グループ](https://groups.google.com/forum/#!msg/openstack-ja/DO46zPQ9Wrw/mYkSBSw0UiwJ)
+- [SIOS "OSSよろず" ブログ出張所: Red Hat のコミュニティ版 OpenStack ディストリビューション 「RDO」を試す。](http://sios-oss.blogspot.jp/2013/05/red-hat-openstack-rdo.html)
 
 
 ```
@@ -381,7 +395,7 @@ index 2375b32..3335b43 100644
 
 
 
-
+```
 [root@wnoguchi keystone]# mysql -uroot -pnova -e "create database keystone character set utf8;"
 [root@wnoguchi keystone]# keystone-manage db_sync
 [root@wnoguchi keystone]# chown keystone:keystone /var/log/keystone -R
@@ -391,10 +405,11 @@ keystone を起動中:                                         [  OK  ]
 [root@wnoguchi keystone]# chkconfig openstack-keystone on
 [root@wnoguchi keystone]# service openstack-keystone status
 keystone (pid  6358) を実行中...
-
+```
 
 データ投入テスト
 
+```
 cd /usr/local/src ; cp -a /usr/share/openstack-keystone/sample_data.sh .
 
 export CONTROLLER_HOST=stack01
@@ -514,15 +529,16 @@ export OS_SERVICE_ENDPOINT=http://stack01:35357/v2.0/
 | a7426193194b4279a90bd0cb6ba4de32 | RegionOne |                http://stack01:9292                 |                http://stack01:9292                 |                http://stack01:9292                 | 154112af665f4d978cd32fd4464d68c1 |
 | c9c73f1c82f945e09e30eb13c37141bf | RegionOne |        http://stack01:8776/v1/$(tenant_id)s        |        http://stack01:8776/v1/$(tenant_id)s        |        http://stack01:8776/v1/$(tenant_id)s        | c047229f68a9422a82ce05031680b1f3 |
 +----------------------------------+-----------+----------------------------------------------------+----------------------------------------------------+----------------------------------------------------+----------------------------------+
+```
 
 
-
-Image delivery and registration (Glance)のインストール
+### Image delivery and registration (Glance)のインストール
 
 
 
 まず、SQL接続用設定を変更します。
 
+```
 # cd /etc/glance
 # vi glance-api.conf glance-registry.conf
 sql_connection = mysql://glance:password@stack01/glance?charset=utf8
@@ -544,9 +560,11 @@ sed -i "s#127.0.0.1#stack01#" /etc/glance/glance-api.conf
 sed -i "s#localhost#stack01#" /etc/glance/glance-api.conf
 sed -i "s#127.0.0.1#stack01#" /etc/glance/glance-registry.conf
 sed -i "s#localhost#stack01#" /etc/glance/glance-registry.conf
+```
 
+このあたりは複雑なのでpatchファイル見てください。
 
-
+```
 MYSQL_PASS_GLANCE=password
 NOVA_CONTOLLER_HOSTNAME=stack01
 mysql -u root -pnova -e "drop database if exists glance;"
@@ -566,7 +584,9 @@ for i in api registry
 do
   chkconfig openstack-glance-$i on
 done
+```
 
+```
 export OS_USERNAME=admin
 export OS_PASSWORD=secrete
 export OS_TENANT_NAME=demo
@@ -635,11 +655,12 @@ glance image-create --name="f17-jeos" --is-public=true --disk-format=qcow2 --con
 | status           | active                               |
 | updated_at       | 2013-08-05T09:33:24                  |
 +------------------+--------------------------------------+
-
+```
 
 
 ### Volume Service(Cinder)のインストール
 
+```
 yum install openstack-cinder -y
 
 cp -a /etc/cinder /etc/cinder_bak
@@ -672,19 +693,18 @@ cinder-manage db sync
 2013-08-05 18:43:56     INFO [migrate.versioning.api] done
 2013-08-05 18:43:56     INFO [migrate.versioning.api] 8 -> 9... 
 2013-08-05 18:43:56     INFO [migrate.versioning.api] done
+```
 
-
-
+```
 sed -i "s@# include /etc/cinder/volumes/@include /etc/cinder/volumes/@" /etc/tgt/conf.d/cinder.conf
 echo "include /etc/tgt/conf.d/*.conf" >> /etc/tgt/targets.conf
 echo "include /var/lib/cinder/volumes/*" >> /etc/tgt/conf.d/cinder.conf
 
-
-
 service tgtd restart
 chkconfig tgtd on
+```
 
-
+```
 chown cinder:cinder /var/log/cinder/*
 for i in volume api scheduler
 do
@@ -694,7 +714,9 @@ for i in volume api scheduler
 do
   chkconfig openstack-cinder-$i on
 done
+```
 
+```
 [root@wnoguchi cinder]# cinder list
 [root@wnoguchi cinder]# cinder create --display_name cinder_test 1
 +---------------------+--------------------------------------+
@@ -724,36 +746,39 @@ done
 +--------------------------------------+--------+--------------+------+-------------+----------+-------------+
 [root@wnoguchi cinder]# cinder delete $(cinder list | grep cinder_test | awk '{print $2}')
 [root@wnoguchi cinder]# cinder list
-
+```
 
 
 ### Cloud compute (Nova)のインストール
 
+```
 yum install -y openstack-nova
 http://repos.fedorapeople.org/repos/openstack/openstack-grizzly/epel-6/repodata/61fe111b1f291be718a48d77219aef4c1171e05d10115a71da113b8f7e08301d-filelists.sqlite.bz2: [Errno 14] PYCURL ERROR 22 - "The requested URL returned error: 404 Not Found"
 Trying other mirror.
 Error: failure: repodata/61fe111b1f291be718a48d77219aef4c1171e05d10115a71da113b8f7e08301d-filelists.sqlite.bz2 from epel-openstack-grizzly: [Errno 256] No more mirrors to try.
  You could try using --skip-broken to work around the problem
  You could try running: rpm -Va --nofiles --nodigest
+```
 
+どうしてもエラーになる。
 URL変わったのかな。
 リポジトリメタデータクリアする。
 
+```
 yum clean all
+```
 
 もう一回。
 
+```
 yum install -y openstack-nova
+```
 
-うまくいった。
+今度はうまくいった。
 
 [yumリポジトリのキャッシュをクリアする - think-tの晴耕雨読](http://d.hatena.ne.jp/think-t/20130408/p1)
 
-
-
-
-
-
+```
 MYSQL_PASS_NOVA=password
 NOVA_CONTOLLER_HOSTNAME=stack01
 mysql -uroot -pnova -e "drop database if exists nova;"
@@ -762,9 +787,11 @@ mysql -uroot -pnova -e "grant all privileges on nova.* to 'nova'@'%' identified 
 mysql -uroot -pnova -e "grant all privileges on nova.* to 'nova'@'localhost' identified by '$MYSQL_PASS_NOVA';"
 mysql -uroot -pnova -e "grant all privileges on nova.* to 'nova'@'$NOVA_CONTOLLER_HOSTNAME' identified by '$MYSQL_PASS_NOVA';"
 nova-manage db sync
+```
 
 サービスめっちゃ多い。
 
+```
 for proc in api metadata-api cert network compute objectstore console scheduler consoleauth xvpvncproxy conductor
 do
   service openstack-nova-$proc restart
@@ -773,8 +800,11 @@ for proc in api metadata-api cert network compute objectstore console scheduler 
 do
   chkconfig openstack-nova-$proc on
 done
+```
 
+サービスがちゃんと起動しているか確認。
 
+```
 [root@wnoguchi nova]# nova-manage service list
 Binary           Host                                 Zone             Status     State Updated_At
 nova-cert        stack01                              internal         enabled    :-)   2013-08-05 10:08:46
@@ -784,16 +814,19 @@ nova-conductor   stack01                              internal         enabled  
 nova-consoleauth stack01                              internal         enabled    :-)   2013-08-05 10:08:47
 nova-network     stack01                              internal         enabled    :-)   2013-08-05 10:08:47
 nova-compute     stack01                              nova             enabled    :-)   None      
+```
 
 ### Dashboard (Horizon)のインストール
 
+```
 yum -y install openstack-dashboard openstack-nova-novncproxy
 
 service openstack-nova-novncproxy start
 chkconfig openstack-nova-novncproxy on
+```
 
 
-
+```
 3.2.7.3. iptablesの設定及び再起動
 iptablesの設定が必要な場合です。
 iptablesにMySQL(3306)、noVNC(6080)、Apache(443,80)、Glance(9292)、Memcached(11211)、Qpid(5672)のポート開放を設定します。
@@ -805,19 +838,20 @@ iptablesにMySQL(3306)、noVNC(6080)、Apache(443,80)、Glance(9292)、Memcached
 # sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT' /etc/sysconfig/iptables
 # sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT' /etc/sysconfig/iptables
 # service iptables restart
-
+```
 
 Apacheの再起動及び自動起動の設定
 
-
+```
 service httpd restart
 service openstack-nova-novncproxy restart
 chkconfig httpd on
 chkconfig openstack-nova-novncproxy on
-
+```
 
 ### OpenStack利用開始
 
+```
 useradd stack
 cat << KEYSTONERC | tee /home/stack/keystonerc > /dev/null
 export OS_NO_CACHE=True
@@ -828,35 +862,39 @@ export OS_TENANT_NAME=demo
 export OS_AUTH_URL=http://stack01:35357/v2.0/
 KEYSTONERC
 chown stack:stack /home/stack/keystonerc
-
-
+```
 
 novaマネージネットワークの構築
 
 自宅内LANでは192.168.0.0/24のネットワーク体系を使用しているのでこのネットワークに干渉しない設定ならOKです。
 
+```
 nova-manage network create \
 --label nova_network1        \
 --fixed_range_v4=10.0.0.0/25 \
 --bridge_interface=eth0      \
 --multi_host=T
 2013-08-05 19:17:12.835 8906 INFO nova.network.driver [-] Loading network driver 'nova.network.linux_net'
+```
 
-
+```
 [root@wnoguchi nova]# nova-manage network list
 id      IPv4                    IPv6            start address   DNS1            DNS2            VlanID          project          uuid           
 1       10.0.0.0/25             None            10.0.0.2        8.8.4.4         None            None            None             722c6be4-ba86-45d1-ad8b-9900f4178e58
-
+```
 
 フローティングIPの定義
 
 使っていない社内LAN IPのレンジを切り出して割り当てましょう。
 
+```
 nova-manage floating create --ip_range=192.168.0.112/28
+```
 
 28ビットマスクなのでネットワークアドレスとブロードキャストアドレスを除いて
 14IP使用できる計算になります。
 
+```
 [root@wnoguchi nova]# nova-manage floating list
 None    192.168.0.113   None    nova    br100
 None    192.168.0.114   None    nova    br100
@@ -872,13 +910,14 @@ None    192.168.0.123   None    nova    br100
 None    192.168.0.124   None    nova    br100
 None    192.168.0.125   None    nova    br100
 None    192.168.0.126   None    nova    br100
-
+```
 
 
 キーペアの作成
 
 このあたりで「あーこれAWSのマネジメントコンソールで似たようなこと見たことある」ってなりました。
 
+```
 cd /home/stack
 [root@wnoguchi stack]# nova keypair-add mykey > mykey
 [root@wnoguchi stack]# chown stack:stack mykey
@@ -889,14 +928,14 @@ cd /home/stack
 +-------+-------------------------------------------------+
 | mykey | 59:56:53:97:22:5c:ad:73:39:93:ea:7c:3e:ec:1a:3f |
 +-------+-------------------------------------------------+
-
+```
 
 セキュリティグループの設定
 
 セキュリティグループの設定もec2のインスタンスで既視感。
 だからopenstackとec2は互換性があるって言われるのか。
 
-
+```
 [root@wnoguchi stack]# nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
 +-------------+-----------+---------+-----------+--------------+
 | IP Protocol | From Port | To Port | IP Range  | Source Group |
@@ -915,9 +954,11 @@ cd /home/stack
 +---------+-------------+
 | default | default     |
 +---------+-------------+
+```
 
 icmpにポートとかいう概念はないから-1になってます。
 
+```
 [root@wnoguchi stack]# nova secgroup-list-rules default
 +-------------+-----------+---------+-----------+--------------+
 | IP Protocol | From Port | To Port | IP Range  | Source Group |
@@ -925,6 +966,7 @@ icmpにポートとかいう概念はないから-1になってます。
 | icmp        | -1        | -1      | 0.0.0.0/0 |              |
 | tcp         | 22        | 22      | 0.0.0.0/0 |              |
 +-------------+-----------+---------+-----------+--------------+
+```
 
 ホスト名はOpenStackをインストールしたサーバーのアドレスを指定。
 /dashboardを入れないとapacheのデフォルトページだけで焦ります。
@@ -932,13 +974,13 @@ icmpにポートとかいう概念はないから-1になってます。
 http://192.168.0.10/dashboard
 
 デフォルト
-ID: admin
-PASS: secrete
 
+- ID: `admin`
+- PASS: `secrete`
 
 起動しない。。。
 
-
+```
 nova boot --flavor 1 --image dd8143e2-e54b-4908-b56e-c76f1b5c14ac f17_001 --key_name mykey
 
 [root@wnoguchi stack]# nova image-list
@@ -1004,14 +1046,18 @@ nova boot --flavor 1 --image dd8143e2-e54b-4908-b56e-c76f1b5c14ac f17_001 --key_
 | created                             | 2013-08-05T10:43:56Z                 |
 | metadata                            | {}                                   |
 +-------------------------------------+--------------------------------------+
+```
 
-
+```
 for proc in api metadata-api cert network compute objectstore console scheduler consoleauth xvpvncproxy conductor
 do
   service openstack-nova-$proc restart
 done
+```
 
+ごにょごにょ。
 
+```
 [root@wnoguchi stack]# nova list
 +--------------------------------------+--------------+--------+------------------------+
 | ID                                   | Name         | Status | Networks               |
@@ -1022,15 +1068,20 @@ done
 | 0e34a951-3204-43d6-9d69-b8d97d482cfe | vmtest       | ERROR  |                        |
 | 12b86b96-bbcb-4b4f-8b96-4eed67ef6cec | wataru-no-vm | ERROR  |                        |
 +--------------------------------------+--------------+--------+------------------------+
+```
 
 ああ、やっと起動した。
 
+```
 vi /etc/nova/nova.conf
+```
 
 のIP設定が間違ってたのか。。。
+詳しくはnova設定のパッチ見てください。
 
-pingの導通を確認。
+OpenStack内部ネットワークにてpingの導通を確認。
 
+```
 [root@wnoguchi stack]# ping 10.0.0.2
 PING 10.0.0.2 (10.0.0.2) 56(84) bytes of data.
 64 bytes from 10.0.0.2: icmp_seq=1 ttl=64 time=0.220 ms
@@ -1040,9 +1091,11 @@ PING 10.0.0.2 (10.0.0.2) 56(84) bytes of data.
 --- 10.0.0.2 ping statistics ---
 3 packets transmitted, 3 received, 0% packet loss, time 2332ms
 rtt min/avg/max/mdev = 0.175/0.200/0.220/0.022 ms
+```
 
-フローティングIPあてました。
+このままだと外からSSHできないのでフローティングIPあてました。
 
+```
 localhost:OpenStack noguchiwataru$ ping 192.168.0.114
 PING 192.168.0.114 (192.168.0.114): 56 data bytes
 64 bytes from 192.168.0.114: icmp_seq=0 ttl=63 time=1.839 ms
@@ -1052,18 +1105,21 @@ PING 192.168.0.114 (192.168.0.114): 56 data bytes
 --- 192.168.0.114 ping statistics ---
 3 packets transmitted, 3 packets received, 0.0% packet loss
 round-trip min/avg/max/stddev = 0.849/1.235/1.839/0.432 ms
-
+```
 
 ちゃんとKVMにインスタンス割り当てられてるかな。
 
+```
 [root@wnoguchi stack]# virsh list --all
  Id    名前                         状態
 ----------------------------------------------------
  1     instance-00000005              実行中
-
+```
 
 うまくいってる。
+ためしにSSHしてみる。
 
+```
 localhost:OpenStack noguchiwataru$ ssh root@192.168.0.114
 The authenticity of host '192.168.0.114 (192.168.0.114)' can't be established.
 RSA key fingerprint is ab:8a:97:a4:bf:ab:cb:cd:18:d8:dc:85:0b:2c:39:b4.
@@ -1092,7 +1148,7 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 16436
         RX errors 0  dropped 0  overruns 0  frame 0
         TX packets 0  bytes 0 (0.0 B)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
-
+```
 
 外にもいける。
 さっき作ったsshキーペアでec2-userにログインできた。
