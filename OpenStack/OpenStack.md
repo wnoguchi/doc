@@ -55,9 +55,17 @@ mysql -uroot -pnova -e "set password for root@stack01=password('nova');"
 
 ## 参考サイト
 
+### Main
+
 - [3. Openstackインストール手順(Grizzly)CentOS6.4(パッケージ)編 —
 オープンソースに関するドキュメント 1.1
 documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)
 - [オープンソースに関するドキュメント — オープンソースに関するドキュメント 1.1
 documentation](http://oss.fulltrust.co.jp/doc/index.html)
 
+### Subs.
+
+- [さくらの専用サーバとOpenStackで作るプライベートクラウド | SourceForge.JP Magazine](http://sourceforge.jp/magazine/12/09/18/1126211)
+- [OpenStack 運用ガイド(PDF)](http://dream.daynight.jp/openstack/openstack-ops/openstack-ops-manual-local.pdf)
+- [これからはじめるOpenStackリンク集 | 外道父の匠](http://blog.father.gedow.net/2013/02/19/openstack-links/)
+- [OpenStack の利用](http://www.slideshare.net/yosshy/openstack-14884093)

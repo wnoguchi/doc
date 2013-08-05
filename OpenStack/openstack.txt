@@ -1006,3 +1006,96 @@ nova boot --flavor 1 --image dd8143e2-e54b-4908-b56e-c76f1b5c14ac f17_001 --key_
 +-------------------------------------+--------------------------------------+
 
 
+for proc in api metadata-api cert network compute objectstore console scheduler consoleauth xvpvncproxy conductor
+do
+  service openstack-nova-$proc restart
+done
+
+
+[root@wnoguchi stack]# nova list
++--------------------------------------+--------------+--------+------------------------+
+| ID                                   | Name         | Status | Networks               |
++--------------------------------------+--------------+--------+------------------------+
+| e5cb7f4a-a752-499a-ae74-cb0357b2d95f | f17_001      | ERROR  |                        |
+| 84e1c17b-6692-4b64-b12d-cf742c4d140b | f17_002      | ERROR  |                        |
+| 18c186c4-9386-44ed-80ac-7a258a9e7f25 | f17_003      | BUILD  | nova_network1=10.0.0.2 |
+| 0e34a951-3204-43d6-9d69-b8d97d482cfe | vmtest       | ERROR  |                        |
+| 12b86b96-bbcb-4b4f-8b96-4eed67ef6cec | wataru-no-vm | ERROR  |                        |
++--------------------------------------+--------------+--------+------------------------+
+
+ああ、やっと起動した。
+
+vi /etc/nova/nova.conf
+
+のIP設定が間違ってたのか。。。
+
+pingの導通を確認。
+
+[root@wnoguchi stack]# ping 10.0.0.2
+PING 10.0.0.2 (10.0.0.2) 56(84) bytes of data.
+64 bytes from 10.0.0.2: icmp_seq=1 ttl=64 time=0.220 ms
+64 bytes from 10.0.0.2: icmp_seq=2 ttl=64 time=0.175 ms
+64 bytes from 10.0.0.2: icmp_seq=3 ttl=64 time=0.206 ms
+^C
+--- 10.0.0.2 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2332ms
+rtt min/avg/max/mdev = 0.175/0.200/0.220/0.022 ms
+
+フローティングIPあてました。
+
+localhost:OpenStack noguchiwataru$ ping 192.168.0.114
+PING 192.168.0.114 (192.168.0.114): 56 data bytes
+64 bytes from 192.168.0.114: icmp_seq=0 ttl=63 time=1.839 ms
+64 bytes from 192.168.0.114: icmp_seq=1 ttl=63 time=1.018 ms
+64 bytes from 192.168.0.114: icmp_seq=2 ttl=63 time=0.849 ms
+^C
+--- 192.168.0.114 ping statistics ---
+3 packets transmitted, 3 packets received, 0.0% packet loss
+round-trip min/avg/max/stddev = 0.849/1.235/1.839/0.432 ms
+
+
+ちゃんとKVMにインスタンス割り当てられてるかな。
+
+[root@wnoguchi stack]# virsh list --all
+ Id    名前                         状態
+----------------------------------------------------
+ 1     instance-00000005              実行中
+
+
+うまくいってる。
+
+localhost:OpenStack noguchiwataru$ ssh root@192.168.0.114
+The authenticity of host '192.168.0.114 (192.168.0.114)' can't be established.
+RSA key fingerprint is ab:8a:97:a4:bf:ab:cb:cd:18:d8:dc:85:0b:2c:39:b4.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '192.168.0.114' (RSA) to the list of known hosts.
+Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
+localhost:OpenStack noguchiwataru$ vi ~/.ssh/ostackkey.key
+localhost:OpenStack noguchiwataru$ chmod 600 ~/.ssh/ostackkey.key
+localhost:OpenStack noguchiwataru$ ssh ec2-user@192.168.0.114 -i ~/.ssh/ostackkey.key
+[ec2-user@f17-003 ~]$ ls
+[ec2-user@f17-003 ~]$ ifconfig
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 10.0.0.2  netmask 255.255.255.128  broadcast 10.0.0.127
+        inet6 fe80::f816:3eff:fee0:6678  prefixlen 64  scopeid 0x20<link>
+        ether fa:16:3e:e0:66:78  txqueuelen 1000  (Ethernet)
+        RX packets 393  bytes 56621 (55.2 KiB)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 300  bytes 39705 (38.7 KiB)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 16436
+        inet 127.0.0.1  netmask 255.0.0.0
+        inet6 ::1  prefixlen 128  scopeid 0x10<host>
+        loop  txqueuelen 0  (Local Loopback)
+        RX packets 0  bytes 0 (0.0 B)
+        RX errors 0  dropped 0  overruns 0  frame 0
+        TX packets 0  bytes 0 (0.0 B)
+        TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
+
+
+このあたりまでくるともうec2とおんなじですね。
+awsは超便利版みたいな感じ。
+
+あとでまとめます。
+
