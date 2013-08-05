@@ -1094,6 +1094,10 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 16436
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
 
+外にもいける。
+さっき作ったsshキーペアでec2-userにログインできた。
+rootは現在のところパス無しでいけるみたい。
+
 このあたりまでくるともうec2とおんなじですね。
 awsは超便利版みたいな感じ。
 
