@@ -40,6 +40,8 @@ service ntpd start &&
 chkconfig ntpd on
 ```
 
+#### epel
+
 epel入れといてね。
 
 ```
@@ -50,6 +52,14 @@ mysql -uroot -e "set password for root@localhost=password('nova');"
 mysql -uroot -pnova -e "set password for root@127.0.0.1=password('nova');"
 mysql -uroot -pnova -e "set password for root@stack01=password('nova');"
 ```
+
+![](img/create_instance.png)
+![](img/dashboard.png)
+![](img/float_ip.png)
+![](img/images.png)
+![](img/instance_active.png)
+![](img/login.png)
+![](img/serial.png)
 
 ## 参考サイト
 
@@ -67,3 +77,4 @@ documentation](http://oss.fulltrust.co.jp/doc/index.html)
 - [OpenStack 運用ガイド(PDF)](http://dream.daynight.jp/openstack/openstack-ops/openstack-ops-manual-local.pdf)
 - [これからはじめるOpenStackリンク集 | 外道父の匠](http://blog.father.gedow.net/2013/02/19/openstack-links/)
 - [OpenStack の利用](http://www.slideshare.net/yosshy/openstack-14884093)
+- [OpenStack勉強会](http://www.slideshare.net/obara13/open-stack-16166193)
