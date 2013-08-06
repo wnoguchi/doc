@@ -1212,6 +1212,8 @@ rootは現在のところパス無しでいけるみたい。
 このあたりまでくるともうec2とおんなじですね。
 awsは超便利版みたいな感じ。
 
+リブートしてもいける。
+
 あとでまとめます。
 
 ログイン画面  
@@ -1246,7 +1248,13 @@ documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)
 - [オープンソースに関するドキュメント — オープンソースに関するドキュメント 1.1
 documentation](http://oss.fulltrust.co.jp/doc/index.html)
 
+↓最高に参考になる。
+
+- [オープンソースに関するドキュメント — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/index.html)
+
 ### Subs.
+
+[日本OpenStackユーザ会 - Japan OpenStack User Group Japan (JOSUG) openstack.jp](http://openstack.jp/)
 
 - [さくらの専用サーバとOpenStackで作るプライベートクラウド | SourceForge.JP Magazine](http://sourceforge.jp/magazine/12/09/18/1126211)
 - [OpenStack 運用ガイド(PDF)](http://dream.daynight.jp/openstack/openstack-ops/openstack-ops-manual-local.pdf)
