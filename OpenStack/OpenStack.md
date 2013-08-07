@@ -32,7 +32,7 @@ GATEWAY=192.168.0.1
 
 省略。
 
-#### aaa
+#### 必要最低限のパッケージを入れる
 
 ```
 yum install -y ntp man openssh-clients &&
