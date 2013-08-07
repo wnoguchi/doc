@@ -26,6 +26,422 @@ virt-install --connect qemu:///system \
              --cdrom=/var/samba/notrsync/Linux/CentOS-6.4-x86_64-bin-DVD1.iso \
              --extra-args='console=tty0 console=ttyS0,115200n8'
 
+
+yum install python-virtinst
+
+mkdir -p /opt/virt/CentOS6.4
+mkdir /mnt/ec2-ami
+qemu-img create -f raw /opt/virt/CentOS6.4/CentOS6.4.img 10G
+mke2fs -t ext4 -F -j /opt/virt/CentOS6.4/CentOS6.4.img
+
+mount -o loop /opt/virt/CentOS6.4/CentOS6.4.img /mnt/ec2-ami
+
+スペシャルデバイスファイルを作成する
+
+mkdir /mnt/ec2-ami/dev
+cd /mnt/ec2-ami/dev
+[root@stack01 dev]# for i in console null zero ; do /sbin/MAKEDEV -d /mnt/ec2-ami/dev -x $i; done
+MAKEDEV: mkdir: File exists
+MAKEDEV: mkdir: File exists
+MAKEDEV: mkdir: File exists
+MAKEDEV: mkdir: File exists
+MAKEDEV: mkdir: File exists
+MAKEDEV: mkdir: File exists
+MAKEDEV: mkdir: File exists
+MAKEDEV: mkdir: File exists
+MAKEDEV: mkdir: File exists
+[root@stack01 dev]# ls
+console  null  tty  zero
+
+
+mkdir /mnt/ec2-ami/etc
+cat << FSTAB_AMI | tee /mnt/ec2-ami/etc/fstab > /dev/null
+LABEL=uec-rootfs / ext4 defaults 1 1
+tmpfs /dev/shm tmpfs defaults 0 0
+devpts /dev/pts devpts gid=5,mode=620 0 0
+sysfs /sys sysfs defaults 0 0
+proc /proc proc defaults 0 0
+/dev/sda2 /mnt ext3 defaults 0 0
+/dev/sda3 swap swap defaults 0 0
+FSTAB_AMI
+
+mkdir /mnt/ec2-ami/etc
+cat << YUM_AMI | tee /mnt/ec2-ami/etc/yum-ami.conf > /dev/null
+[main]
+cachedir=/var/cache/yum
+debuglevel=2
+logfile=/var/log/yum.log
+exclude=*-debuginfo
+gpgcheck=0
+obsoletes=1
+reposdir=/dev/null
+
+[base]
+name=CentOS Linux - Base
+baseurl=http://ftp.jaist.ac.jp/pub/Linux/CentOS/6.4/os/x86_64/
+enabled=1
+gpgcheck=0
+
+[updates]
+name=CentOS-6 - Updates
+baseurl=http://ftp.jaist.ac.jp/pub/Linux/CentOS/6.4/updates/x86_64/
+enabled=1
+gpgcheck=0
+YUM_AMI
+
+
+mkdir /mnt/ec2-ami/proc
+mount -t proc none /mnt/ec2-ami/proc
+yum -c /mnt/ec2-ami/etc/yum-ami.conf --installroot=/mnt/ec2-ami -y groupinstall Core
+yum -c /mnt/ec2-ami/etc/yum-ami.conf --installroot=/mnt/ec2-ami -y groupinstall Base
+
+欲しいパッケージはここでいれとくとすごーくべんり
+
+chroot /mnt/ec2-ami cp -p /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.org
+chroot /mnt/ec2-ami sed -i 's/^#baseurl/baseurl/g' /etc/yum.repos.d/CentOS-Base.repo
+chroot /mnt/ec2-ami sed -i 's/$releasever/6.4/g' /etc/yum.repos.d/CentOS-Base.repo
+
+chrootにこんな使い方あるのか。しらんかった。
+baseurlとかいじれると自社内の高速リポジトリとか指定できたりしてすごくべんり。
+
+
+cat << NIC_AMI | tee /mnt/ec2-ami/etc/sysconfig/network-scripts/ifcfg-eth0 > /dev/null
+DEVICE=eth0
+BOOTPROTO=dhcp
+ONBOOT=yes
+TYPE=Ethernet
+USERCTL=yes
+PEERDNS=yes
+IPV6INIT=no
+NIC_AMI
+
+cat << NETWORKING_AMI | tee /mnt/ec2-ami/etc/sysconfig/network > /dev/null
+NETWORKING=yes
+NETWORKING_AMI
+
+cat << DNS_AMI | tee /mnt/ec2-ami/etc/resolv.conf > /dev/null
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+DNS_AMI
+
+
+[root@stack01 dev]# cd ..
+[root@stack01 ec2-ami]# ls -l
+合計 104
+dr-xr-xr-x.   2 root root  4096  8月  7 22:06 2013 bin
+dr-xr-xr-x.   4 root root  4096  8月  7 22:07 2013 boot
+drwxr-xr-x.   2 root root  4096  9月 23 20:50 2011 dev
+drwxr-xr-x.  75 root root  4096  8月  7 22:06 2013 etc
+drwxr-xr-x.   2 root root  4096  9月 23 20:50 2011 home
+dr-xr-xr-x.  10 root root  4096  8月  7 22:05 2013 lib
+dr-xr-xr-x.   9 root root 12288  8月  7 22:05 2013 lib64
+drwx------.   2 root root 16384  8月  7 21:34 2013 lost+found
+drwxr-xr-x.   2 root root  4096  9月 23 20:50 2011 media
+drwxr-xr-x.   2 root root  4096  9月 23 20:50 2011 mnt
+drwxr-xr-x.   3 root root  4096  8月  7 22:06 2013 opt
+dr-xr-xr-x. 240 root root     0  9月 23 20:50 2011 proc
+dr-xr-x---.   2 root root  4096  8月  7 21:59 2013 root
+dr-xr-xr-x.   2 root root 12288  8月  7 22:06 2013 sbin
+drwxr-xr-x.   2 root root  4096  9月 23 20:50 2011 selinux
+drwxr-xr-x.   2 root root  4096  9月 23 20:50 2011 srv
+drwxr-xr-x.   2 root root  4096  9月 23 20:50 2011 sys
+drwxrwxrwt.   2 root root  4096  8月  7 22:07 2013 tmp
+drwxr-xr-x.  13 root root  4096  8月  7 21:54 2013 usr
+drwxr-xr-x.  19 root root  4096  8月  7 22:06 2013 var
+[root@stack01 ec2-ami]# cd -
+/mnt/ec2-ami/dev
+
+ディレクトリできてる。
+
+yum -c /mnt/ec2-ami/etc/yum-ami.conf --installroot=/mnt/ec2-ami -y install curl
+yum -c /mnt/ec2-ami/etc/yum-ami.conf --installroot=/mnt/ec2-ami -y install wget
+
+chroot /mnt/ec2-ami yum install curl -y
+
+
+[root@stack01 dev]# chroot /mnt/ec2-ami yum install curl -y
+Traceback (most recent call last):
+  File "/usr/bin/yum", line 4, in <module>
+    import yum
+  File "/usr/lib/python2.6/site-packages/yum/__init__.py", line 46, in <module>
+    import tempfile
+  File "/usr/lib64/python2.6/tempfile.py", line 34, in <module>
+    from random import Random as _Random
+  File "/usr/lib64/python2.6/random.py", line 873, in <module>
+    _inst = Random()
+  File "/usr/lib64/python2.6/random.py", line 96, in __init__
+    self.seed(x)
+  File "/usr/lib64/python2.6/random.py", line 110, in seed
+    a = long(_hexlify(_urandom(16)), 16)
+OSError: [Errno 2] No such file or directory: '/dev/urandom'
+
+/sbin/MAKEDEV -d /mnt/ec2-ami/dev -x urandom
+
+もういっぱつ
+
+chroot /mnt/ec2-ami yum install curl -y
+
+うまくいった！
+
+epel入れたいなあ
+
+chroot /mnt/ec2-ami yum install wget -y
+
+chroot /mnt/ec2-ami wget ftp://ftp.riken.jp/Linux/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm
+chroot /mnt/ec2-ami rpm -ivh epel-release-6-8.noarch.rpm
+
+chroot /mnt/ec2-ami -y install tmux
+
+tmux入った。
+これ必須だよね。
+
+cat << RC_LOCAL_AMI | tee -a /mnt/ec2-ami/etc/rc.local > /dev/null
+depmod -a
+modprobe acpiphp
+/usr/local/sbin/get-credentials.sh
+RC_LOCAL_AMI
+
+chroot /mnt/ec2-ami sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+chroot /mnt/ec2-ami chkconfig ip6tables off
+chroot /mnt/ec2-ami chkconfig iptables off
+chroot /mnt/ec2-ami chkconfig ntpd on
+
+```
+cat << CREDS_AMI | tee -a /mnt/ec2-ami/usr/local/sbin/get-credentials.sh > /dev/null
+#!/bin/bash
+
+# Retreive the credentials from relevant sources.
+
+# Fetch any credentials presented at launch time and add them to
+# root's public keys
+
+PUB_KEY_URI=http://169.254.169.254/1.0/meta-data/public-keys/0/openssh-key
+PUB_KEY_FROM_HTTP=/tmp/openssh_id.pub
+PUB_KEY_FROM_EPHEMERAL=/mnt/openssh_id.pub
+ROOT_AUTHORIZED_KEYS=/root/.ssh/authorized_keys
+
+
+
+# We need somewhere to put the keys.
+if [ ! -d /root/.ssh ] ; then
+mkdir -p /root/.ssh
+chmod 700 /root/.ssh
+fi
+
+# Fetch credentials...
+
+# First try http
+curl --retry 3 --retry-delay 0 --silent --fail -o $PUB_KEY_FROM_HTTP $PUB_KEY_URI
+if [ $? -eq 0 -a -e $PUB_KEY_FROM_HTTP ] ; then
+if ! grep -q -f $PUB_KEY_FROM_HTTP $ROOT_AUTHORIZED_KEYS
+then
+cat $PUB_KEY_FROM_HTTP >> $ROOT_AUTHORIZED_KEYS
+echo "New key added to authrozied keys file from parameters"|logger -t "ec2"
+fi
+chmod 600 $ROOT_AUTHORIZED_KEYS
+rm -f $PUB_KEY_FROM_HTTP
+
+elif [ -e $PUB_KEY_FROM_EPHEMERAL ] ; then
+# Try back to ephemeral store if http failed.
+# NOTE: This usage is deprecated and will be removed in the future
+if ! grep -q -f $PUB_KEY_FROM_EPHEMERAL $ROOT_AUTHORIZED_KEYS
+then
+cat $PUB_KEY_FROM_EPHEMERAL >> $ROOT_AUTHORIZED_KEYS
+echo "New key added to authrozied keys file from ephemeral store"|logger -t "ec2"
+
+fi
+chmod 600 $ROOT_AUTHORIZED_KEYS
+chmod 600 $PUB_KEY_FROM_EPHEMERAL
+
+fi
+
+if [ -e /mnt/openssh_id.pub ] ; then
+if ! grep -q -f /mnt/openssh_id.pub /root/.ssh/authorized_keys
+then
+cat /mnt/openssh_id.pub >> /root/.ssh/authorized_keys
+echo "New key added to authrozied keys file from ephemeral store"|logger -t "ec2"
+
+fi
+chmod 600 /root/.ssh/authorized_keys
+fi
+CREDS_AMI
+```
+
+chmod 755 /mnt/ec2-ami/usr/local/sbin/get-credentials.sh
+
+cp /mnt/ec2-ami/boot/initramfs-*.x86_64.img /opt/virt/CentOS6.4
+cp /mnt/ec2-ami/boot/vmlinuz-*.x86_64 /opt/virt/CentOS6.4
+
+ルートに戻らないとビジー状態でアンマウントできない。
+cd /
+umount /mnt/ec2-ami/proc
+umount /mnt/ec2-ami
+
+OpenStackで利用するために仮想マシンのOSイメージのラベルを変更しておく。
+
+tune2fs -L uec-rootfs /opt/virt/CentOS6.4/CentOS6.4.img
+tune2fs 1.41.12 (17-May-2010)
+
+
+
+
+
+### RAMイメージ登録
+
+```
+cd /opt/virt/CentOS6.4
+glance add name="centos64_ramdisk" is_public=true container_format=ari disk_format=ari < $(ls | grep initram)
+Added new image with ID: 4cdd4415-0b01-4c7f-afff-5f94a7480d8c
+
+glance image-create --name="centos64_ramdisk" --is-public=true --container-format=ari --disk-format=ari < $(ls | grep initram)
++------------------+--------------------------------------+
+| Property         | Value                                |
++------------------+--------------------------------------+
+| checksum         | ddf2aa27623731a6e592fe1a69494c56     |
+| container_format | ari                                  |
+| created_at       | 2013-08-07T13:47:20                  |
+| deleted          | False                                |
+| deleted_at       | None                                 |
+| disk_format      | ari                                  |
+| id               | b035b594-2af0-42de-a1c5-9b2b05358bdb |
+| is_public        | True                                 |
+| min_disk         | 0                                    |
+| min_ram          | 0                                    |
+| name             | centos64_ramdisk                     |
+| owner            | 439df062c81244a1af4f977f1450990c     |
+| protected        | False                                |
+| size             | 16214072                             |
+| status           | active                               |
+| updated_at       | 2013-08-07T13:47:20                  |
++------------------+--------------------------------------+
+```
+
+### カーネルイメージ登録
+
+```
+glance image-create --name="centos64_kernel" --is-public=true --container-format=aki --disk-format=aki < $(ls | grep vmlinuz)
++------------------+--------------------------------------+
+| Property         | Value                                |
++------------------+--------------------------------------+
+| checksum         | 89a029d37633f120aafc7babeda54b66     |
+| container_format | aki                                  |
+| created_at       | 2013-08-07T13:48:20                  |
+| deleted          | False                                |
+| deleted_at       | None                                 |
+| disk_format      | aki                                  |
+| id               | 698d61f5-8c6c-4c01-9e54-bbf54eef7f28 |
+| is_public        | True                                 |
+| min_disk         | 0                                    |
+| min_ram          | 0                                    |
+| name             | centos64_kernel                      |
+| owner            | 439df062c81244a1af4f977f1450990c     |
+| protected        | False                                |
+| size             | 4045680                              |
+| status           | active                               |
+| updated_at       | 2013-08-07T13:48:21                  |
++------------------+--------------------------------------+
+```
+
+
+登録したRAMとKERNELのIDが必要です。
+イメージは圧縮しておいたほうが容量削減にもなりますし、イメージ登録や仮想マシンの作成も速いです。
+
+```
+↓複数イメージが有ると動かない、あうと
+#RAMDISK_ID=$(glance image-list | grep centos64_ramdisk | awk -F"|" '{print $2}' | sed -e 's/^[ ]*//g')
+#KERNEL_ID=$(glance image-list | grep centos64_kernel | awk -F"|" '{print $2}' | sed -e 's/^[ ]*//g')
+
+
+[root@stack01 CentOS6.4]# echo $RAMDISK_ID
+b035b594-2af0-42de-a1c5-9b2b05358bdb
+[root@stack01 CentOS6.4]# echo $KERNEL_ID
+698d61f5-8c6c-4c01-9e54-bbf54eef7f28
+```
+
+RAWか圧縮するかどっちか選ぶ。
+圧縮したほうが速いらしい。
+
+### RAWイメージのままでOSイメージを登録
+
+```
+glance image-create --name="centos64_ami" --is-public=true --container-format=ami --disk-format=ami --property kernel_id=$KERNEL_ID --property ramdisk_id=$RAMDISK_ID < CentOS6.4.img
++-----------------------+--------------------------------------+
+| Property              | Value                                |
++-----------------------+--------------------------------------+
+| Property 'kernel_id'  | 698d61f5-8c6c-4c01-9e54-bbf54eef7f28 |
+| Property 'ramdisk_id' | b035b594-2af0-42de-a1c5-9b2b05358bdb |
+| checksum              | 5a46facf5953fc758c2ca3b89809a514     |
+| container_format      | ami                                  |
+| created_at            | 2013-08-07T13:51:01                  |
+| deleted               | False                                |
+| deleted_at            | None                                 |
+| disk_format           | ami                                  |
+| id                    | cd280a7a-32f7-4b48-9076-d99a62cf8aa0 |
+| is_public             | True                                 |
+| min_disk              | 0                                    |
+| min_ram               | 0                                    |
+| name                  | centos64_ami                         |
+| owner                 | 439df062c81244a1af4f977f1450990c     |
+| protected             | False                                |
+| size                  | 10737418240                          |
+| status                | active                               |
+| updated_at            | 2013-08-07T13:52:43                  |
++-----------------------+--------------------------------------+
+```
+
+### 圧縮してOSイメージを登録
+
+```
+イメージコンバート
+qemu-img convert -O qcow2 -c CentOS6.4.img CentOS6.4.qcow2
+登録（圧倒的にイメージ登録のスピードが速かった）
+glance image-create --name="centos64_ami_qcow" --is-public=true --container-format=ami --disk-format=ami --property kernel_id=$KERNEL_ID --property ramdisk_id=$RAMDISK_ID < CentOS6.4.qcow2
++-----------------------+--------------------------------------+
+| Property              | Value                                |
++-----------------------+--------------------------------------+
+| Property 'kernel_id'  | 698d61f5-8c6c-4c01-9e54-bbf54eef7f28 |
+| Property 'ramdisk_id' | b035b594-2af0-42de-a1c5-9b2b05358bdb |
+| checksum              | cebd8013fdbaceb56aa5b25d0e7964e3     |
+| container_format      | ami                                  |
+| created_at            | 2013-08-07T13:55:36                  |
+| deleted               | False                                |
+| deleted_at            | None                                 |
+| disk_format           | ami                                  |
+| id                    | 04f3347d-cbd8-4634-98b7-20a0d2692e94 |
+| is_public             | True                                 |
+| min_disk              | 0                                    |
+| min_ram               | 0                                    |
+| name                  | centos64_ami_qcow                    |
+| owner                 | 439df062c81244a1af4f977f1450990c     |
+| protected             | False                                |
+| size                  | 560267776                            |
+| status                | active                               |
+| updated_at            | 2013-08-07T13:55:38                  |
++-----------------------+--------------------------------------+
+```
+
+登録が終了したのでOpenStackから利用できるようになっています。
+例えば以下のようにブートします。
+
+一般ユーザstackにて
+```
+nova boot --flavor 1 --image centos64_ami  centos64_001 --key_name mykey
+```
+
+但し、rootユーザのパスワードを設定などしていないため公開鍵認証でしかログインできませんので気をつけてください。
+もしrootのパスワードを設定する場合は途中で設定しておけばよいでしょう。
+
+
+
+
+まだまだいろいろあるけど、できそうなことは分かった。
+
+
+
+
+
+
+
 ## 参考サイト
 
 ↓たぶん超参考になる。

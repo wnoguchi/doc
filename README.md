@@ -2,7 +2,8 @@
 
 ## Abstract
 
-wnoguchiの公開してもいいドキュメントを入れていくリポジトリです。
+wnoguchiの公開してもいいドキュメントを入れていくリポジトリです。  
+とりあえず何の役にも立たない駄文をメモっていくのに使います。
 
 ## About me
 
@@ -12,13 +13,16 @@ wnoguchiの公開してもいいドキュメントを入れていくリポジト
 どちらかというとネットワークやサーバー構築などのインフラ関係の事のほうが好きです。  
 
 業務系アプリ・Webアプリケーション開発全般。ネットワークエンジニア。  
-こんなクズがよく生きてるなって思います。コミュ障。学歴は察してください。
 
 アニメ、お昼寝、サーバー構築、トマトジュース、なでしこが好き。 Linux、Android、Mac、Windowsが好き。
 
+#### Network Engineering
+
+Linux / CentOS / Ubuntu / 仮想化技術(VPS) / KVM / サーバー構築全般 / Nagios, cacti / Postfixメールサーバー / BIND DNS / SSL証明書 / Vyatta / RTX1200 / VLANネットワーク構築 / VPN構築 / Asterisk内線構築
+
 #### Language
 
-Ruby / Java / PHP / C# / VB.NET / VBA（Excelマクロメイン） / Flex / C++ / C / なでしこ JavaScript / HTML / CSS
+Ruby / Java / PHP / C# / VB.NET / VBA（Excelマクロメイン） / Flex / C++ / C / なでしこ / JavaScript / HTML / CSS
 
 #### Database
 
