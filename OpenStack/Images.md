@@ -449,6 +449,6 @@ nova boot --flavor 1 --image centos64_ami  centos64_001 --key_name mykey
 
 - [yumによるOSイメージ作成 — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_faq_grizzly/yum/make_ami_centos.html)  
 とても参考になった。
-- [OpenStack Folsom構築 on Wheezy (8) 独自イメージ作成 | 外道父の匠](http://blog.father.gedow.net/2013/04/08/openstack-folsom-on-wheezy-vol-08/)
-- [virt-install(1): provision new virtual machines - Linux man page](http://linux.die.net/man/1/virt-install)  
+- [OpenStack Folsom構築 on Wheezy (8) 独自イメージ作成 | 外道父の匠](http://blog.father.gedow.net/2013/04/08/openstack-folsom-on-wheezy-vol-08/)  
 あまり参考にならなかった。
+- [virt-install(1): provision new virtual machines - Linux man page](http://linux.die.net/man/1/virt-install)
