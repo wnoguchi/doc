@@ -4,40 +4,22 @@
 
 僕はCentOS信者なのでCentOSのイメージを作成します。
 
-qemu-img create  -f qcow2 centos-6.4-x64.img 50G
-
-Formatting 'centos-6.4-x64.img', fmt=qcow2 size=53687091200 encryption=off cluster_size=65536 
-
-kvm -m 1024 -cdrom debian-7.0testing-adm64-netinst.iso \
-    -drive file=debian-7.0testing.img,if=virtio,index=0 \
-    -k ja -boot d -net nic -net user -nographic -vnc :99
-
-
-virt-install --connect qemu:///system \
-             --name centos-6.4-x64 \
-             --ram=2048 \
-             --vcpus=2 \
-             --hvm \
-             --os-type=Linux \
-             --os-variant=virtio26 \
-             --disk=/var/samba/centos-6.4-x64.img,device=disk,bus=virtio,size=50,sparse=true,format=qcow2,cache=writeback \
-             --nographics \
-             --keymap ja \
-             --cdrom=/var/samba/notrsync/Linux/CentOS-6.4-x86_64-bin-DVD1.iso \
-             --extra-args='console=tty0 console=ttyS0,115200n8'
-
-
+```
 yum install python-virtinst
+```
 
+```
 mkdir -p /opt/virt/CentOS6.4
 mkdir /mnt/ec2-ami
 qemu-img create -f raw /opt/virt/CentOS6.4/CentOS6.4.img 10G
 mke2fs -t ext4 -F -j /opt/virt/CentOS6.4/CentOS6.4.img
 
 mount -o loop /opt/virt/CentOS6.4/CentOS6.4.img /mnt/ec2-ami
+```
 
 スペシャルデバイスファイルを作成する
 
+```
 mkdir /mnt/ec2-ami/dev
 cd /mnt/ec2-ami/dev
 [root@stack01 dev]# for i in console null zero ; do /sbin/MAKEDEV -d /mnt/ec2-ami/dev -x $i; done
@@ -52,8 +34,9 @@ MAKEDEV: mkdir: File exists
 MAKEDEV: mkdir: File exists
 [root@stack01 dev]# ls
 console  null  tty  zero
+```
 
-
+```
 mkdir /mnt/ec2-ami/etc
 cat << FSTAB_AMI | tee /mnt/ec2-ami/etc/fstab > /dev/null
 LABEL=uec-rootfs / ext4 defaults 1 1
@@ -64,7 +47,9 @@ proc /proc proc defaults 0 0
 /dev/sda2 /mnt ext3 defaults 0 0
 /dev/sda3 swap swap defaults 0 0
 FSTAB_AMI
+```
 
+```
 mkdir /mnt/ec2-ami/etc
 cat << YUM_AMI | tee /mnt/ec2-ami/etc/yum-ami.conf > /dev/null
 [main]
@@ -88,23 +73,27 @@ baseurl=http://ftp.jaist.ac.jp/pub/Linux/CentOS/6.4/updates/x86_64/
 enabled=1
 gpgcheck=0
 YUM_AMI
+```
 
-
+```
 mkdir /mnt/ec2-ami/proc
 mount -t proc none /mnt/ec2-ami/proc
 yum -c /mnt/ec2-ami/etc/yum-ami.conf --installroot=/mnt/ec2-ami -y groupinstall Core
 yum -c /mnt/ec2-ami/etc/yum-ami.conf --installroot=/mnt/ec2-ami -y groupinstall Base
+```
 
 欲しいパッケージはここでいれとくとすごーくべんり
 
+```
 chroot /mnt/ec2-ami cp -p /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.org
 chroot /mnt/ec2-ami sed -i 's/^#baseurl/baseurl/g' /etc/yum.repos.d/CentOS-Base.repo
 chroot /mnt/ec2-ami sed -i 's/$releasever/6.4/g' /etc/yum.repos.d/CentOS-Base.repo
+```
 
 chrootにこんな使い方あるのか。しらんかった。
 baseurlとかいじれると自社内の高速リポジトリとか指定できたりしてすごくべんり。
 
-
+```
 cat << NIC_AMI | tee /mnt/ec2-ami/etc/sysconfig/network-scripts/ifcfg-eth0 > /dev/null
 DEVICE=eth0
 BOOTPROTO=dhcp
@@ -114,17 +103,22 @@ USERCTL=yes
 PEERDNS=yes
 IPV6INIT=no
 NIC_AMI
+```
 
+```
 cat << NETWORKING_AMI | tee /mnt/ec2-ami/etc/sysconfig/network > /dev/null
 NETWORKING=yes
 NETWORKING_AMI
+```
 
+```
 cat << DNS_AMI | tee /mnt/ec2-ami/etc/resolv.conf > /dev/null
 nameserver 8.8.8.8
 nameserver 8.8.4.4
 DNS_AMI
+```
 
-
+```
 [root@stack01 dev]# cd ..
 [root@stack01 ec2-ami]# ls -l
 合計 104
@@ -150,14 +144,12 @@ drwxr-xr-x.  13 root root  4096  8月  7 21:54 2013 usr
 drwxr-xr-x.  19 root root  4096  8月  7 22:06 2013 var
 [root@stack01 ec2-ami]# cd -
 /mnt/ec2-ami/dev
+```
 
-ディレクトリできてる。
+おー、ディレクトリできてる。
 
-yum -c /mnt/ec2-ami/etc/yum-ami.conf --installroot=/mnt/ec2-ami -y install curl
-yum -c /mnt/ec2-ami/etc/yum-ami.conf --installroot=/mnt/ec2-ami -y install wget
-
+```
 chroot /mnt/ec2-ami yum install curl -y
-
 
 [root@stack01 dev]# chroot /mnt/ec2-ami yum install curl -y
 Traceback (most recent call last):
@@ -174,27 +166,37 @@ Traceback (most recent call last):
   File "/usr/lib64/python2.6/random.py", line 110, in seed
     a = long(_hexlify(_urandom(16)), 16)
 OSError: [Errno 2] No such file or directory: '/dev/urandom'
+```
 
+`/dev/urandom` のスペシャルデバイスファイルが無いよって言っていると推測した。
+
+```
 /sbin/MAKEDEV -d /mnt/ec2-ami/dev -x urandom
+```
 
 もういっぱつ
 
+```
 chroot /mnt/ec2-ami yum install curl -y
+```
 
 うまくいった！
 
 epel入れたいなあ
 
+```
 chroot /mnt/ec2-ami yum install wget -y
 
 chroot /mnt/ec2-ami wget ftp://ftp.riken.jp/Linux/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm
 chroot /mnt/ec2-ami rpm -ivh epel-release-6-8.noarch.rpm
 
 chroot /mnt/ec2-ami -y install tmux
+```
 
 tmux入った。
 これ必須だよね。
 
+```
 cat << RC_LOCAL_AMI | tee -a /mnt/ec2-ami/etc/rc.local > /dev/null
 depmod -a
 modprobe acpiphp
@@ -205,6 +207,7 @@ chroot /mnt/ec2-ami sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux
 chroot /mnt/ec2-ami chkconfig ip6tables off
 chroot /mnt/ec2-ami chkconfig iptables off
 chroot /mnt/ec2-ami chkconfig ntpd on
+```
 
 ```
 cat << CREDS_AMI | tee -a /mnt/ec2-ami/usr/local/sbin/get-credentials.sh > /dev/null
@@ -267,21 +270,27 @@ fi
 CREDS_AMI
 ```
 
+```
 chmod 755 /mnt/ec2-ami/usr/local/sbin/get-credentials.sh
 
 cp /mnt/ec2-ami/boot/initramfs-*.x86_64.img /opt/virt/CentOS6.4
 cp /mnt/ec2-ami/boot/vmlinuz-*.x86_64 /opt/virt/CentOS6.4
+```
 
 ルートに戻らないとビジー状態でアンマウントできない。
+
+```
 cd /
 umount /mnt/ec2-ami/proc
 umount /mnt/ec2-ami
+```
 
 OpenStackで利用するために仮想マシンのOSイメージのラベルを変更しておく。
 
+```
 tune2fs -L uec-rootfs /opt/virt/CentOS6.4/CentOS6.4.img
 tune2fs 1.41.12 (17-May-2010)
-
+```
 
 
 
@@ -394,6 +403,7 @@ glance image-create --name="centos64_ami" --is-public=true --container-format=am
 ```
 イメージコンバート
 qemu-img convert -O qcow2 -c CentOS6.4.img CentOS6.4.qcow2
+
 登録（圧倒的にイメージ登録のスピードが速かった）
 glance image-create --name="centos64_ami_qcow" --is-public=true --container-format=ami --disk-format=ami --property kernel_id=$KERNEL_ID --property ramdisk_id=$RAMDISK_ID < CentOS6.4.qcow2
 +-----------------------+--------------------------------------+
@@ -424,6 +434,7 @@ glance image-create --name="centos64_ami_qcow" --is-public=true --container-form
 例えば以下のようにブートします。
 
 一般ユーザstackにて
+
 ```
 nova boot --flavor 1 --image centos64_ami  centos64_001 --key_name mykey
 ```
@@ -431,24 +442,13 @@ nova boot --flavor 1 --image centos64_ami  centos64_001 --key_name mykey
 但し、rootユーザのパスワードを設定などしていないため公開鍵認証でしかログインできませんので気をつけてください。
 もしrootのパスワードを設定する場合は途中で設定しておけばよいでしょう。
 
-
-
-
-まだまだいろいろあるけど、できそうなことは分かった。
-
-
-
-
-
+**まだまだいろいろあるけど、できそうなことは分かった。**
 
 
 ## 参考サイト
 
-↓たぶん超参考になる。
-
-- [yumによるOSイメージ作成 — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_faq_grizzly/yum/make_ami_centos.html)
-
-
+- [yumによるOSイメージ作成 — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_faq_grizzly/yum/make_ami_centos.html)  
+とても参考になった。
 - [OpenStack Folsom構築 on Wheezy (8) 独自イメージ作成 | 外道父の匠](http://blog.father.gedow.net/2013/04/08/openstack-folsom-on-wheezy-vol-08/)
-- [virt-install(1): provision new virtual machines - Linux man page](http://linux.die.net/man/1/virt-install)
-
+- [virt-install(1): provision new virtual machines - Linux man page](http://linux.die.net/man/1/virt-install)  
+あまり参考にならなかった。
