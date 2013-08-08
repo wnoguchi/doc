@@ -13,8 +13,10 @@ wnoguchiの公開してもいいドキュメントを入れていくリポジト
 どちらかというとネットワークやサーバー構築などのインフラ関係の事のほうが好きです。  
 
 業務系アプリ・Webアプリケーション開発全般。ネットワークエンジニア。  
+最近はAWSやOpenStack、IP電話に興味がある。
 
-アニメ、お昼寝、サーバー構築、トマトジュース、なでしこが好き。 Linux、Android、Mac、Windowsが好き。
+アニメ、お昼寝、サーバー構築、トマトジュース、なでしこが好き。  
+Linux、Android、Mac、Windowsが好き。
 
 #### Network Engineering
 
@@ -26,7 +28,7 @@ Ruby / Java / PHP / C# / VB.NET / VBA（Excelマクロメイン） / Flex / C++ 
 
 #### Database
 
-MySQL, PostgreSQL, SQL Server
+MySQL, PostgreSQL, SQL Server, Oracle
 
 #### Framework
 
