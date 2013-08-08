@@ -70,3 +70,4 @@ iSCSIで接続できるんだね。
 ## 参考サイト
 
 - [OpenStackの新機能、Cinderを使う | SourceForge.JP Magazine](http://sourceforge.jp/magazine/13/04/03/090000)
+- [OpenStack 2012.2で追加された新機能「Cinder」を使う - さくらのナレッジ](http://knowledge.sakura.ad.jp/tech/119/)
