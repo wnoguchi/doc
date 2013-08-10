@@ -1,12 +1,66 @@
-# OpenStack導入メモ
+# OpenStack
 
+プライベートクラウドを構築するコンポーネント群のOSS。  
 OpenStackを導入するにあたって参考にさせていただいたサイトや手順等をメモしていきます。
+
+## 概要
+
+OpenStackは大きく2つの種類に分類される。
+
+- Cloud Controller node
+- Compute Nodes
+
+Cloud Controller nodeは制御ノードと呼ばれて、novaとかglanceとかいろいろ入ります。  
+制御用のノードなので比較的計算機リソースはディスクが30GBぐらい、  
+メモリが12GBぐらい必要になります。  
+でも実験用とかだったら仮想マシンのイメージとかブロックストレージ等の永続化データも  
+この制御ノードと一緒にされるのでディスクは1〜2TB必要。  
+NIC二枚差し推奨らしい。実験用ならNIC一枚でも動きます。  
+
+Compute Nodesは実際に仮想マシンを稼働させるノード。計算機リソースとしてのノードなのでディスクは30GBと少なめ。  
+ただメモリは32GB以上推奨。  
+仮想化対応必須。KVMとかVMwareとかXenとか。  
+うちはKVMだね。
+
+どのみちストレージが必要なのでCinderをどっかで稼働させないといけない。  
+Compute Nodesに入れるのかな。  
+要調査。
+
+[AWS](http://aws.amazon.com/jp/) と互換性があるのでAWS触っておくと理解が速いと思う。
+
+### 構成されるコンポーネント
+
+- Identity Service(Keystone)
+- Image delivery and registration (Glance)
+- Volume Service(Cinder)
+- Cloud compute (Nova)
+- Dashboard (Horizon)
+
+他に必要なのは
+
+- Neutron
+- Swift  
+Amazon s3的なやつ。
+
+## 近況
+
+- **ネットワーク管理コンポーネントのQuantumはNeutronに名前が変わった。**
 
 ## インストール
 
-### System Requirements
+とりあえずオールインワン構成でインストールしてみよう。
 
-- CentOS 6.4 x64
+### システム構成
+
+- サーバー: FUJITSU Server PRIMERGY RX100 S7
+- OS: CentOS 6.4 x64
+- 実装メモリ: 16GB
+- ディスク: 1TB RAIDなし
+
+このサーバー好きだわ。
+僕が実験で構築したネットワーク構成図を書くとこんな感じ？
+
+![](img/experimental_network.png)
 
 ### IPアドレス固定化
 
@@ -30,7 +84,7 @@ GATEWAY=192.168.0.1
 
 ### SELinux無効化
 
-省略。
+よろしくやっといてください。
 
 #### 必要最低限のパッケージを入れる
 
@@ -1378,25 +1432,29 @@ cinder create --display_name cinder_test 3
 
 ## 参考サイト
 
-### Main
+### インストール関連
 
+- [3.1. Openstack概要 — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/openstack_summary.html)
 - [3. Openstackインストール手順(Grizzly)CentOS6.4(パッケージ)編 —
 オープンソースに関するドキュメント 1.1
 documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)
-- [オープンソースに関するドキュメント — オープンソースに関するドキュメント 1.1
-documentation](http://oss.fulltrust.co.jp/doc/index.html)
+- [さくらの専用サーバとOpenStackで作るプライベートクラウド | SourceForge.JP Magazine](http://sourceforge.jp/magazine/12/09/18/1126211)  
+ちょっと記事が古めで長くて眠くなりそう。  
+ただ、データセンター使ってプライベとクラウド作るのでとても参考になりそう。
 
-↓最高に参考になる。
-
-- [オープンソースに関するドキュメント — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/index.html)
-
-### 公式・準公式
+### 公式サイト的な
 
 - [OpenStack](https://wiki.openstack.org/wiki/Main_Page)
 - [日本OpenStackユーザ会 - Japan OpenStack User Group Japan (JOSUG) openstack.jp](http://openstack.jp/)
 
-- [さくらの専用サーバとOpenStackで作るプライベートクラウド | SourceForge.JP Magazine](http://sourceforge.jp/magazine/12/09/18/1126211)
+### マニュアルとか
+
 - [OpenStack 運用ガイド(PDF)](http://dream.daynight.jp/openstack/openstack-ops/openstack-ops-manual-local.pdf)
+- [open OpenStack Docs: current](http://docs.openstack.org/trunk/)
 - [これからはじめるOpenStackリンク集 | 外道父の匠](http://blog.father.gedow.net/2013/02/19/openstack-links/)
+- [オープンソースに関するドキュメント — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/index.html)
+
+### その他
+
 - [OpenStack の利用](http://www.slideshare.net/yosshy/openstack-14884093)
 - [OpenStack勉強会](http://www.slideshare.net/obara13/open-stack-16166193)

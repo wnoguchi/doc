@@ -450,6 +450,12 @@ nova boot --flavor 1 --image centos64_ami  centos64_001 --key_name mykey
 サンプルで紹介されてるfedoraのイメージは元気に動いてる。  
 この違いはなんだ。
 
+## virt-installコマンドを使ったインストール
+
+これが一番簡単そう。
+
+- [Example: CentOS image - OpenStack Virtual Machine Image Guide  - master](http://docs.openstack.org/trunk/openstack-image/content/centos-image.html)
+
 ## 参考サイト
 
 - [yumによるOSイメージ作成 — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_faq_grizzly/yum/make_ami_centos.html)  
