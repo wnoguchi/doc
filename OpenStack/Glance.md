@@ -454,6 +454,176 @@ nova boot --flavor 1 --image centos64_ami  centos64_001 --key_name mykey
 
 これが一番簡単そう。
 
+```
+qemu-img create -f qcow2 /tmp/centos-6.4.qcow2 10G
+virt-install --virt-type kvm --name centos-6.4-x64 --ram 1024 \
+--disk /tmp/centos-6.4.qcow2,format=qcow2 \
+--network network=default \
+--nographics \
+--os-type=linux --os-variant=rhel6 \
+--location=/var/samba/notrsync/OS/Linux/CentOS-6.4-x86_64-bin-DVD1.iso \
+--extra-args='console=tty0 console=ttyS0,115200n8'
+```
+
+基本的にVNC嫌いなのでグラフィクス切ってます。
+流れに沿ってインストール。
+rootでログイン。
+
+<!--
+CD-ROMのデバイス名を調べて排出する。
+
+```
+virsh dumpxml centos-6.4-x64 | grep cdrom -5
+      <source file='/tmp/centos-6.4.qcow2'/>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x04' function='0x0'/>
+    </disk>
+    <disk type='block' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <target dev='hdc' bus='ide'/>
+      <readonly/>
+      <alias name='ide0-1-0'/>
+      <address type='drive' controller='0' bus='1' target='0' unit='0'/>
+```
+
+コンソールに戻る。
+
+```
+virsh console centos-6.4-x64
+```
+
+空エンター。
+
+-->
+
+鍵の自動取得を設定。
+ec2-userが作られる。
+
+```
+[root@localhost ~]# ifup eth0
+
+eth0 のIP情報を検出中... 完了。
+[root@localhost ~]# ping 8.8.8.8
+PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+64 bytes from 8.8.8.8: icmp_seq=1 ttl=45 time=42.9 ms
+64 bytes from 8.8.8.8: icmp_seq=2 ttl=45 time=41.9 ms
+
+--- 8.8.8.8 ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss, time 1419ms
+rtt min/avg/max/mdev = 41.966/42.466/42.967/0.541 ms
+[root@localhost ~]# ping www.google.co.jp
+PING www.google.co.jp (74.125.235.184) 56(84) bytes of data.
+64 bytes from nrt19s12-in-f24.1e100.net (74.125.235.184): icmp_seq=1 ttl=53 time=10.3 ms
+
+--- www.google.co.jp ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 795ms
+rtt min/avg/max/mdev = 10.338/10.338/10.338/0.000 ms
+
+rpm -Uvh http://download.fedoraproject.org/pub/epel/6/x86_64/epel-release-6-8.noarch.rpm
+yum -y install cloud-init
+```
+
+このあたりでひととおり便利なパッケージは予め入れておこう。
+
+```
+yum -y groupinstall "Development Tools"
+yum -y install wget vim-enhanced tmux nmap bind-utils openssh-clients whatmask
+yum -y update
+```
+
+仮想マシン停める。
+
+```
+halt
+```
+
+MACアドレスとかrules記述を削除する。  
+インスタンス複製した時にコンフリクトして問題になるから。
+
+```
+yum -y install libguestfs-tools
+virt-sysprep -d centos-6.4-x64
+（少し時間がかかる）
+```
+
+定義削除。
+
+```
+virsh undefine centos-6.4-x64
+```
+
+あとはバックアップどっかにとっておいてGlanceにイメージ登録すればOK。
+
+```
+mv /tmp/centos-6.4.qcow2 /var/samba/
+chown nobody:nobody /var/samba/centos-6.4.qcow2
+(Windows PCあたりからsambaの共有ディレクトリをマウントして取得してそれをs3にぶん投げるとか)
+```
+
+```
+glance image-create --name="centos64_ami_qcow" --is-public=true --container-format=ami --disk-format=ami --property kernel_id=$KERNEL_ID --property ramdisk_id=$RAMDISK_ID < CentOS6.4.qcow2
++-----------------------+--------------------------------------+
+| Property              | Value                                |
++-----------------------+--------------------------------------+
+| Property 'kernel_id'  | None                                 |
+| Property 'ramdisk_id' | None                                 |
+| checksum              | 924adc867b15f4fe63ade06a16e8a90c     |
+| container_format      | ami                                  |
+| created_at            | 2013-08-10T17:47:20                  |
+| deleted               | False                                |
+| deleted_at            | None                                 |
+| disk_format           | ami                                  |
+| id                    | 80d3b621-b9f4-49c6-a145-58d604e9df3c |
+| is_public             | True                                 |
+| min_disk              | 0                                    |
+| min_ram               | 0                                    |
+| name                  | centos64_x64_ami                     |
+| owner                 | 439df062c81244a1af4f977f1450990c     |
+| protected             | False                                |
+| size                  | 1803026432                           |
+| status                | active                               |
+| updated_at            | 2013-08-10T17:47:35                  |
++-----------------------+--------------------------------------+
+```
+
+普通にインスタンス起動したらping帰ってこないんだけど。。。  
+DHCPでONBOOT=yesにしたらいけた。  
+フローティングipもok  
+ec2-userではログイン出来ないみたい。  
+rootで鍵を指定すればいいみたい。  
+あとシリアルコンソール指定しないと。
+
+```
+serial –unit=0 –speed=115200
+terminal –timeout=10 console serial
+# Edit the kernel line to add the console entries
+kernel ... console=tty0 console=ttyS0,115200n8
+```
+
+rootへの入り方は以下の様な感じ。
+
+```
+$ ssh root@192.168.0.116 -i ~/.ssh/ostackkey.key
+```
+
+
+```
+virt-install --connect qemu:///system \
+             --name centos-6.4-x64 \
+             --ram=1024 \
+             --vcpus=1 \
+             --hvm \
+             --os-type=Linux \
+             --os-variant=virtio26 \
+             --disk=/var/lib/libvirt/images/example.com.img,device=disk,bus=virtio,size=50,sparse=true,format=raw,cache=writeback \
+             --network bridge=br0,model=virtio \
+             --nographics \
+             --keymap ja \
+             --location=/var/tmp/CentOS-6.3-x86_64-bin-DVD1.iso \
+             --extra-args='console=tty0 console=ttyS0,115200n8'
+```
+
 - [Example: CentOS image - OpenStack Virtual Machine Image Guide  - master](http://docs.openstack.org/trunk/openstack-image/content/centos-image.html)
 
 ## 参考サイト
