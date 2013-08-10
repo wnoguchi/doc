@@ -1442,10 +1442,19 @@ documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)
 ちょっと記事が古めで長くて眠くなりそう。  
 ただ、データセンター使ってプライベとクラウド作るのでとても参考になりそう。
 
+#### あとで読む的な
+
+- [mseknibilel/OpenStack-Folsom-Install-guide](https://github.com/mseknibilel/OpenStack-Folsom-Install-guide)
+- [Chapter 1. OpenStack Basic Install - OpenStack Basic Install](http://docs.openstack.org/folsom/basic-install/content/)
+- [OpenStack Installation Guide for Red Hat Enterprise Linux, CentOS, and Fedora - OpenStack Installation Guide for Red Hat Enterprise Linux, CentOS, and Fedora  - Grizzly, 2013.1 with Object Storage 1.8.0](http://docs.openstack.org/grizzly/openstack-compute/install/yum/content/)
+- [virtualtech.jp/download/120907OpenStack.pdf](http://virtualtech.jp/download/120907OpenStack.pdf)
+ちょい古め。
+
 ### 公式サイト的な
 
 - [OpenStack](https://wiki.openstack.org/wiki/Main_Page)
 - [日本OpenStackユーザ会 - Japan OpenStack User Group Japan (JOSUG) openstack.jp](http://openstack.jp/)
+- [openstack (OpenStack)](https://github.com/openstack)
 
 ### マニュアルとか
 
