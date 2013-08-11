@@ -19,3 +19,7 @@
 ### コマーシャル
 
 - [AWS Management Console | アマゾン ウェブ サービス（AWS 日本語）](https://aws.amazon.com/jp/console/)
+
+### スライド
+
+- [AWS CloudFormation and Puppet at PuppetConf - Jinesh Varia](http://www.slideshare.net/AmazonWebServices/aws-cloudformation-and-puppet-at-puppetconf-jinesh-varia)

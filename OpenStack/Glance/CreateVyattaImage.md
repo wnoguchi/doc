@@ -286,6 +286,15 @@ glance image-create --name="Vyatta66_x64_ami_qcow" --is-public=true --container-
 cp /tmp/vyatta66.qcow2 /var/samba/
 ```
 
+どっかでしくって動かない。。。  
+user-dataとかに設定とかぶっこまないといけないのかな。。。  
+また明日。。。
+
+[migrate r1-system firewall configure failedÃ¢â‚¬Â¦ | Vyatta.org Community](http://www.vyatta.org/node/5072)
+[VM disk image の mount 方法いくつかメモ - (」・ω・)」うー!(/・ω・)/にゃー!](http://yudoufu.github.io/blog/2012/04/28/vm-mount-memo/)
+[qcow2ファイルをマウント | やってみようよ！](http://www.postcard.st/nosuz/blog/2011/09/10-14)
+[EC2: User Dataを使ってインスタンス起動時の処理を自動化する - aws memo](http://understeer.hatenablog.com/entry/2012/07/19/123050)
+
 
 ## 参考サイト
 
