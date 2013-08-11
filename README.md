@@ -79,12 +79,6 @@ http://lab.unicast.ne.jp/
 
 http://tumblr.pg1x.com/
 
-## Etc.
-
-### Mac
-
-![](Macのショートカット記号.png)
-
 ## Links
 
 ### Markdown
