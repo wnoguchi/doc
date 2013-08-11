@@ -1,0 +1,2 @@
+# VyattaのOpenStackイメージを作成する
+

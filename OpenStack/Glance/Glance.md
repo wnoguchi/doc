@@ -607,6 +607,7 @@ rootへの入り方は以下の様な感じ。
 $ ssh root@192.168.0.116 -i ~/.ssh/ostackkey.key
 ```
 
+-------------------------------------------------------------
 
 ```
 virt-install --connect qemu:///system \
@@ -625,6 +626,63 @@ virt-install --connect qemu:///system \
 ```
 
 - [Example: CentOS image - OpenStack Virtual Machine Image Guide  - master](http://docs.openstack.org/trunk/openstack-image/content/centos-image.html)
+
+----------------------------------------------------------------------------
+
+```
+glance image-create --name="CentOS64_x64_ami_qcow" --is-public=true --container-format=ami < /var/samba/CentOS6.4-x64.qcow2
++------------------+--------------------------------------+
+| Property         | Value                                |
++------------------+--------------------------------------+
+| checksum         | 9a66061578a3687b10808d14ed91f197     |
+| container_format | ami                                  |
+| created_at       | 2013-08-11T10:58:46                  |
+| deleted          | False                                |
+| deleted_at       | None                                 |
+| disk_format      | ami                                  |
+| id               | 79ffeaaa-90a2-4b02-9f1e-b64b43aed211 |
+| is_public        | True                                 |
+| min_disk         | 0                                    |
+| min_ram          | 0                                    |
+| name             | CentOS64_x64_ami_qcow                |
+| owner            | 439df062c81244a1af4f977f1450990c     |
+| protected        | False                                |
+| size             | 1641152512                           |
+| status           | active                               |
+| updated_at       | 2013-08-11T10:58:52                  |
++------------------+--------------------------------------+
+```
+
+virt-sysprepはディスクイメージに対しても使える。
+便利。
+
+```
+virt-sysprep -a UnicastLinux-x64.qcow2
+```
+
+```
+glance image-create --name="UnicastLinux_x64_ami_qcow" --is-public=true --container-format=ami < /var/samba/UnicastLinux-x64.qcow2
++------------------+--------------------------------------+
+| Property         | Value                                |
++------------------+--------------------------------------+
+| checksum         | 22b479c55b92aa9599f5bd60cf4da7f9     |
+| container_format | ami                                  |
+| created_at       | 2013-08-11T11:30:47                  |
+| deleted          | False                                |
+| deleted_at       | None                                 |
+| disk_format      | ami                                  |
+| id               | 5b45b832-1dab-47e2-8cc3-c6197d7df3a8 |
+| is_public        | True                                 |
+| min_disk         | 0                                    |
+| min_ram          | 0                                    |
+| name             | UnicastLinux_x64_ami_qcow            |
+| owner            | 439df062c81244a1af4f977f1450990c     |
+| protected        | False                                |
+| size             | 1641218048                           |
+| status           | active                               |
+| updated_at       | 2013-08-11T11:30:53                  |
++------------------+--------------------------------------+
+```
 
 ## 参考サイト
 
