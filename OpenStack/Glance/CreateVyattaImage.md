@@ -5,9 +5,9 @@
 例によってvirt-installを使います。
 
 ```
-qemu-img create -f qcow2 /tmp/vyatta66.qcow2 10G
+qemu-img create -f qcow2 /tmp/vyatta66-2.qcow2 10G
 virt-install --virt-type kvm --name vyatta66-x64 --ram 1024 \
---disk /tmp/vyatta66.qcow2,format=qcow2 \
+--disk /tmp/vyatta66-2.qcow2,format=qcow2 \
 --network network=default \
 --nographics \
 --os-type=linux --os-variant=debiansqueeze \
@@ -39,7 +39,7 @@ vyatta@vyatta:~$
 とのことなので
 
 ```
-system install
+install system
 
 
 
@@ -257,6 +257,7 @@ sudo halt
 試しにglanceに登録してみてインスタンス起動してpingとか飛んだりvyattaユーザーでログイン出来ればOK。
 
 ```
+
 glance image-create --name="Vyatta66_x64_ami_qcow" --is-public=true --container-format=ami < /tmp/vyatta66.qcow2
 +------------------+--------------------------------------+
 | Property         | Value                                |
@@ -290,11 +291,68 @@ cp /tmp/vyatta66.qcow2 /var/samba/
 user-dataとかに設定とかぶっこまないといけないのかな。。。  
 また明日。。。
 
-[migrate r1-system firewall configure failedÃ¢â‚¬Â¦ | Vyatta.org Community](http://www.vyatta.org/node/5072)
-[VM disk image の mount 方法いくつかメモ - (」・ω・)」うー!(/・ω・)/にゃー!](http://yudoufu.github.io/blog/2012/04/28/vm-mount-memo/)
-[qcow2ファイルをマウント | やってみようよ！](http://www.postcard.st/nosuz/blog/2011/09/10-14)
-[EC2: User Dataを使ってインスタンス起動時の処理を自動化する - aws memo](http://understeer.hatenablog.com/entry/2012/07/19/123050)
+- [migrate r1-system firewall configure failedÃ¢â‚¬Â¦ | Vyatta.org Community](http://www.vyatta.org/node/5072)
+- [VM disk image の mount 方法いくつかメモ - (」・ω・)」うー!(/・ω・)/にゃー!](http://yudoufu.github.io/blog/2012/04/28/vm-mount-memo/)
+- [qcow2ファイルをマウント | やってみようよ！](http://www.postcard.st/nosuz/blog/2011/09/10-14)
+- [EC2: User Dataを使ってインスタンス起動時の処理を自動化する - aws memo](http://understeer.hatenablog.com/entry/2012/07/19/123050)
 
+```
+ interfaces {
+     ethernet eth0 {
+         address dhcp
+     }
+     loopback lo {
+     }
+ }
+ service {
+     ssh {
+     }
+ }
+ system {
+     config-management {
+         commit-revisions 20
+     }
+     console {
+         device ttyS0 {
+             speed 9600
+         }
+     }
+     login {
+         user vyatta {
+             authentication {
+                 encrypted-password $1$4XHPj9eT$G3ww9B/pYDLSXC8YVvazP0
+             }
+             level admin
+         }
+     }
+     ntp {
+         server 0.vyatta.pool.ntp.org {
+         }
+         server 1.vyatta.pool.ntp.org {
+         }
+         server 2.vyatta.pool.ntp.org {
+         }
+     }
+     package {
+         repository community {
+             components main
+             distribution stable
+             url http://packages.vyatta.com/vyatta
+         }
+     }
+     syslog {
+         global {
+             facility all {
+                 level notice
+             }
+             facility protocols {
+                 level debug
+             }
+         }
+     }
+ }
+
+```
 
 ## 参考サイト
 
@@ -302,3 +360,9 @@ user-dataとかに設定とかぶっこまないといけないのかな。。�
 - [Creating a Vyatta AMI](http://www.itisopen.net/2012/02/Creating_a_vyatta_ami/)
 - [Vyatta Core 6.3のAMIを作ってみた - log4moto](http://d.hatena.ne.jp/j3tm0t0/20111113/1321192227)
 - [CloudInitを使ってEC2インスタンスをスマートに立ち上げる | はったりエンジニアの備忘録](http://blog.manabusakai.com/amazon-ec2-cloudinit/)
+
+
+[Vyatta System - AMI INSTALLING THE SYSTEM/USERGUIDE]
+http://www.vyatta.com/downloads/documentation/VC6.5/Vyatta-InstallUpgradeAMI_6.5R3_v02.pdf
+
+
