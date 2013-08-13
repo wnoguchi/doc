@@ -49,7 +49,12 @@ Amazon s3的なやつ。
 
 ## インストール
 
-とりあえずオールインワン構成でインストールしてみよう。
+とりあえずオールインワン構成でインストールしてみよう。  
+インストールに関しては  
+[3. Openstackインストール手順(Grizzly)CentOS6.4(パッケージ)編 —
+オープンソースに関するドキュメント 1.1
+documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)  
+を大いに参考にさせていただいています。
 
 ### システム構成
 
@@ -59,6 +64,8 @@ Amazon s3的なやつ。
 - ディスク: RAIDなし
   * HDD 1TB Cinder用のディスク
   * SSD 80GB 制御用ノード、Novaノード用のOS格納ディスク、容量はちっちゃくていい
+- ホスト名: stack01
+- IPアドレス: 192.168.0.10/24
 
 このサーバー好きだわ。
 僕が実験で構築したネットワーク構成図を書くとこんな感じ？
@@ -71,6 +78,102 @@ Amazon s3的なやつ。
 - OS: CentOS 6.4 x64
 - 実装メモリ: 16GB
 - ディスク: HDD 1TB RAIDなし 
+- ホスト名: stack01
+- IPアドレス: 192.168.0.10/24
+
+Minimalインストール、またはMinimal Desktop構成インストールとします。
+
+参考までにベンチマーク結果を貼っておきます。
+
+```
+========================================================================[34/429]
+   BYTE UNIX Benchmarks (Version 5.1.3)
+
+   System: stack01: GNU/Linux
+   OS: GNU/Linux -- 2.6.32-358.14.1.el6.x86_64 -- #1 SMP Tue Jul 16 23:51:20 UTC
+ 2013
+   Machine: x86_64 (x86_64)
+   Language: en_US.utf8 (charmap="UTF-8", collate="UTF-8")
+   CPU 0: Intel(R) Xeon(R) CPU E3-1220 V2 @ 3.10GHz (6185.7 bogomips)
+          Hyper-Threading, x86-64, MMX, Physical Address Ext, SYSENTER/SYSEXIT, 
+SYSCALL/SYSRET, Intel virtualization
+   CPU 1: Intel(R) Xeon(R) CPU E3-1220 V2 @ 3.10GHz (6185.7 bogomips)
+          Hyper-Threading, x86-64, MMX, Physical Address Ext, SYSENTER/SYSEXIT, 
+SYSCALL/SYSRET, Intel virtualization
+   CPU 2: Intel(R) Xeon(R) CPU E3-1220 V2 @ 3.10GHz (6185.7 bogomips)
+          Hyper-Threading, x86-64, MMX, Physical Address Ext, SYSENTER/SYSEXIT, 
+SYSCALL/SYSRET, Intel virtualization
+   CPU 3: Intel(R) Xeon(R) CPU E3-1220 V2 @ 3.10GHz (6185.7 bogomips)
+          Hyper-Threading, x86-64, MMX, Physical Address Ext, SYSENTER/SYSEXIT, 
+SYSCALL/SYSRET, Intel virtualization
+   15:38:37 up  5:40,  1 user,  load average: 0.06, 0.03, 0.01; runlevel 3
+
+------------------------------------------------------------------------
+Benchmark Run: 火  8月 13 2013 15:38:37 - 16:06:47
+4 CPUs in system; running 1 parallel copy of tests
+
+Dhrystone 2 using register variables       35102212.9 lps   (10.0 s, 7 samples)
+Double-Precision Whetstone                     3301.3 MWIPS (9.7 s, 7 samples)
+Execl Throughput                               4926.6 lps   (30.0 s, 2 samples)
+File Copy 1024 bufsize 2000 maxblocks       1032589.7 KBps  (30.0 s, 2 samples)
+File Copy 256 bufsize 500 maxblocks          273557.8 KBps  (30.0 s, 2 samples)
+File Copy 4096 bufsize 8000 maxblocks       2599445.2 KBps  (30.0 s, 2 samples)
+Pipe Throughput                             1857960.4 lps   (10.0 s, 7 samples)
+Pipe-based Context Switching                 244547.9 lps   (10.0 s, 7 samples)
+Process Creation                              18531.1 lps   (30.0 s, 2 samples)
+Shell Scripts (1 concurrent)                   8144.0 lpm   (60.0 s, 2 samples)
+Shell Scripts (8 concurrent)                   3016.1 lpm   (60.0 s, 2 samples)
+System Call Overhead                        2458175.4 lps   (10.0 s, 7 samples)
+
+System Benchmarks Index Values               BASELINE       RESULT    INDEX
+Dhrystone 2 using register variables         116700.0   35102212.9   3007.9
+Double-Precision Whetstone                       55.0       3301.3    600.2
+Execl Throughput                                 43.0       4926.6   1145.7
+File Copy 1024 bufsize 2000 maxblocks          3960.0    1032589.7   2607.5
+File Copy 256 bufsize 500 maxblocks            1655.0     273557.8   1652.9
+File Copy 4096 bufsize 8000 maxblocks          5800.0    2599445.2   4481.8
+Pipe Throughput                               12440.0    1857960.4   1493.5
+Pipe-based Context Switching                   4000.0     244547.9    611.4
+Process Creation                                126.0      18531.1   1470.7
+Shell Scripts (1 concurrent)                     42.4       8144.0   1920.8
+Shell Scripts (8 concurrent)                      6.0       3016.1   5026.8
+System Call Overhead                          15000.0    2458175.4   1638.8
+                                                                   ========
+System Benchmarks Index Score                                        1754.2
+
+------------------------------------------------------------------------
+Benchmark Run: 火  8月 13 2013 16:06:47 - 16:34:54
+4 CPUs in system; running 4 parallel copies of tests
+
+Dhrystone 2 using register variables      140402904.0 lps   (10.0 s, 7 samples)
+Double-Precision Whetstone                    13079.8 MWIPS (9.6 s, 7 samples)
+Execl Throughput                              23040.9 lps   (30.0 s, 2 samples)
+File Copy 1024 bufsize 2000 maxblocks       1275057.3 KBps  (30.0 s, 2 samples)
+File Copy 256 bufsize 500 maxblocks          325174.4 KBps  (30.0 s, 2 samples)
+File Copy 4096 bufsize 8000 maxblocks       3751435.5 KBps  (30.0 s, 2 samples)
+Pipe Throughput                             7381949.3 lps   (10.0 s, 7 samples)
+Pipe-based Context Switching                1573885.9 lps   (10.0 s, 7 samples)
+Process Creation                              72698.9 lps   (30.0 s, 2 samples)
+Shell Scripts (1 concurrent)                  25306.1 lpm   (60.0 s, 2 samples)
+Shell Scripts (8 concurrent)                   3401.9 lpm   (60.0 s, 2 samples)
+System Call Overhead                        8031145.3 lps   (10.0 s, 7 samples)
+
+System Benchmarks Index Values               BASELINE       RESULT    INDEX
+Dhrystone 2 using register variables         116700.0  140402904.0  12031.1
+Double-Precision Whetstone                       55.0      13079.8   2378.2
+Execl Throughput                                 43.0      23040.9   5358.3
+File Copy 1024 bufsize 2000 maxblocks          3960.0    1275057.3   3219.8
+File Copy 256 bufsize 500 maxblocks            1655.0     325174.4   1964.8
+File Copy 4096 bufsize 8000 maxblocks          5800.0    3751435.5   6468.0
+Pipe Throughput                               12440.0    7381949.3   5934.0
+Pipe-based Context Switching                   4000.0    1573885.9   3934.7
+Process Creation                                126.0      72698.9   5769.8
+Shell Scripts (1 concurrent)                     42.4      25306.1   5968.4
+Shell Scripts (8 concurrent)                      6.0       3401.9   5669.9
+System Call Overhead                          15000.0    8031145.3   5354.1
+                                                                   ========
+System Benchmarks Index Score                                        4809.4
+```
 
 ### IPアドレス固定化
 
@@ -85,26 +188,31 @@ GATEWAY=192.168.0.1
 ### IPv6無効化
 
 コメントアウトもしくは削除。
+stack01のホスト名前解決を追加。
 
 ```
 # /etc/hosts
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 
 #::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+127.0.0.1   stack01
 ```
 
 ### SELinux無効化
 
-よろしくやっといてください。
+よろしくやっておいてください。
 
-#### 必要最低限のパッケージを入れる
+### 必要最低限のパッケージを入れる
+
+gitは必ずしも必要じゃないですけど、設定ファイルのバージョン管理には便利です。  
+デフォルトの設定ファイルからどれだけ変更が加えられているのかがdiffで一目瞭然なので。
 
 ```
-yum install -y ntp man openssh-clients &&
+yum install -y ntp man openssh-clients wget git &&
 service ntpd start &&
 chkconfig ntpd on
 ```
 
-#### EPELリポジトリーを有効化する
+### EPELリポジトリーを有効化する
 
 まずepel基本パッケージを有効化します。
 
@@ -119,7 +227,7 @@ rpm -ivh epel-release-6-8.noarch.rpm
 cat <<EOF >/etc/yum.repos.d/openstack-grizzly.repo
 [epel-openstack-grizzly]
 name=OpenStack Grizzly Repository for EPEL 6
-baseurl=http://repos.fedorapeople.org/repos/openstack/openstack-grizzly/epel-$releasever/
+baseurl=http://repos.fedorapeople.org/repos/openstack/openstack-grizzly/epel-6/
 enabled=1
 skip_if_unavailable=1
 gpgcheck=0
@@ -134,67 +242,106 @@ yum -y update
 
 みたいなことになるので注意。
 
-## MySQL
+**また、このGrizzlyのepelリポジトリを有効にすることによってカーネルイメージの更新等がかかるので、
+相当派手な更新がかかるものと思ったほうがいいと思います。
+なので安定稼働中の既存のシステムにOpenStackを組み込むのはやめといたほうがいいです。
+というか推奨しません。**
+
+### MySQLのセットアップ
 
 ```
-yum install -y mysql-server memcached
+yum -y install mysql-server &&
 service mysqld start &&
-chkconfig mysqld on &&
-mysql -uroot -e "set password for root@localhost=password('nova');"
-mysql -uroot -pnova -e "set password for root@127.0.0.1=password('nova');"
-mysql -uroot -pnova -e "set password for root@stack01=password('nova');"
-```
-
-```
-service mysqld start
 chkconfig mysqld on
-
-MySQLインストール時にそのホスト名で予めレコードが作成されている模様。
-ERROR 1133 (42000) at line 1: Can't find any matching row in the user table
-
-mysql -uroot -e "set password for root@localhost=password('nova');"
-mysql -uroot -pnova -e "set password for root@127.0.0.1=password('nova');"
 mysql -uroot -pnova -e "GRANT ALL PRIVILEGES ON *.* TO root@stack01 IDENTIFIED BY 'nova' WITH GRANT OPTION;"
+mysql -uroot -pnova -e "set password for root@localhost=password('nova');"
+mysql -uroot -pnova -e "set password for root@127.0.0.1=password('nova');"
 mysql -uroot -pnova -e "set password for root@stack01=password('nova');"
 ```
 
+ところで、上のやつで
+
 ```
-service memcached start
+mysql -uroot -pnova -e "GRANT ALL PRIVILEGES ON *.* TO root@stack01 IDENTIFIED BY 'nova' WITH GRANT OPTION;"
+```
+
+をやらないでいると
+
+```
+ERROR 1133 (42000) at line 1: Can't find any matching row in the user table
+```
+
+と怒られるので注意。  
+MySQLインストール時にそのホスト名で予めレコードが作成されている模様。
+
+### memcachedのセットアップ
+
+```
+yum -y install memcached &&
+service memcached start &&
 chkconfig memcached on
 ```
 
+### Apache Qpidのインストール
+
+認証オフ。
+
 ```
-yum install qpid-cpp-server -y
-sed -i 's/auth=yes/auth=no/' /etc/qpidd.conf
-service qpidd restart
+yum -y install qpid-cpp-server &&
+sed -i 's/auth=yes/auth=no/' /etc/qpidd.conf &&
+service qpidd restart &&
 chkconfig qpidd on
 ```
 
+### 仮想化関連パッケージのインストール
+
+KVM関係はもちろんのこと、iSCSI関係のパッケージもインストールします。  
+インストールが終わったらひたすらサービスの再起動を行います。  
+OpenStackぐらいコンポーネントがガチャガチャに組み合わさってくるとタイミングの問題とかでうまくいかないことがあって、
+ひたすらサービスの再起動をよくやります。
+
 ```
-yum install -y iscsi-initiator-utils qemu-kvm libvirt bridge-utils libvirt-python avahi
-service messagebus restart
-service avahi-daemon restart
-service libvirtd restart
-service messagebus start
+yum install -y iscsi-initiator-utils qemu-kvm libvirt bridge-utils libvirt-python avahi &&
+service messagebus restart &&
+service avahi-daemon restart &&
+service libvirtd restart &&
+service messagebus start &&
 service avahi-daemon start
 ```
 
+**この時点で既にカーネルのアップデートがかかっているのでいったんシステムを再起動します。**
+
+```
+reboot
+```
+
+### Identity Service(Keystone)のインストール
+
 ```
 yum install -y openstack-keystone
-cp -a /etc/keystone /etc/keystone_bak
 ```
 
+設定については基本的にコメント外すだけですが、直す箇所が多いのでパッチで見たほうが便利です。  
+git形式のパッチなのでp0ではなくp1で当ててください。  
+不安な人は `--dry-run` してみてください。  
+最後の最終行の改行で引っかからなければいいんだけど・・・。
 
 ```
-vi /etc/keystone/keystone.conf
+cd /etc/keystone/
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/keystone-config.patch
+patch -p1 --dry-run < keystone-config.patch
+patch -p1 < keystone-config.patch
 ```
+
+パッチの内容は以下のとおりです。
+
 
 ```
 diff --git a/keystone.conf b/keystone.conf
-index ff2dafb..a6d2810 100644
+index 2375b32..3335b43 100644
 --- a/keystone.conf
 +++ b/keystone.conf
-@@ -1,27 +1,27 @@
+@@ -1,16 +1,16 @@
  [DEFAULT]
  log_file = /var/log/keystone/keystone.log
  # A "shared secret" between keystone and other openstack services
@@ -213,24 +360,40 @@ index ff2dafb..a6d2810 100644
 -# admin_port = 35357
 +admin_port = 35357
  
+ # The base endpoint URLs for keystone that are advertised to clients
+ # (NOTE: this does NOT affect how keystone listens for connections)
+@@ -18,10 +18,10 @@ log_file = /var/log/keystone/keystone.log
+ # admin_endpoint = http://localhost:%(admin_port)d/
+ 
  # The port number which the OpenStack Compute service listens on
 -# compute_port = 8774
 +compute_port = 8774
  
+ # Path to your policy definition containing identity actions
+-# policy_file = policy.json
++policy_file = policy.json
+ 
+ # Rule to check if no matching policy definition is found
+ # FIXME(dolph): This should really be defined as [policy] default_rule
+@@ -38,10 +38,10 @@ log_file = /var/log/keystone/keystone.log
  # === Logging Options ===
  # Print debugging output
--# verbose = False
-+verbose = False
- 
- # Print more verbose output
  # (includes plaintext request logging, potentially including passwords)
 -# debug = False
-+debug = False
++debug = True
+ 
+ # Print more verbose output
+-# verbose = False
++verbose = True
  
  # Name of log file to output to. If not set, logging will go to stdout.
  # log_file = keystone.log
-@@ -58,9 +58,10 @@ log_file = /var/log/keystone/keystone.log
- connection = mysql://keystone:keystone@localhost/keystone
+@@ -75,12 +75,13 @@ log_file = /var/log/keystone/keystone.log
+ # onready = keystone.common.systemd
+ 
+ [sql]
+-connection = mysql://keystone:keystone@localhost/keystone
++#connection = mysql://keystone:keystone@localhost/keystone
  # The SQLAlchemy connection string used to connect to the database
  # connection = sqlite:///keystone.db
 +connection = mysql://keystone:password@stack01/keystone?charset=utf8
@@ -241,99 +404,37 @@ index ff2dafb..a6d2810 100644
  
  [identity]
  driver = keystone.identity.backends.sql.Identity
-@@ -85,7 +86,7 @@ driver = keystone.token.backends.sql.Token
+@@ -119,7 +120,7 @@ driver = keystone.token.backends.sql.Token
  # expiration = 86400
  
  [policy]
--# driver = keystone.policy.backends.rules.Policy
-+driver = keystone.policy.backends.rules.Policy
+-# driver = keystone.policy.backends.sql.Policy
++#driver = keystone.policy.backends.sql.Policy
  
  [ec2]
  driver = keystone.contrib.ec2.backends.sql.Ec2
-@@ -99,7 +100,7 @@ driver = keystone.contrib.ec2.backends.sql.Ec2
+@@ -133,7 +134,7 @@ driver = keystone.contrib.ec2.backends.sql.Ec2
  #cert_required = True
  
  [signing]
--#token_format = UUID
+-#token_format = PKI
 +token_format = UUID
  #certfile = /etc/keystone/ssl/certs/signing_cert.pem
  #keyfile = /etc/keystone/ssl/private/signing_key.pem
  #ca_certs = /etc/keystone/ssl/certs/ca.pem
-@@ -131,6 +132,11 @@ driver = keystone.contrib.ec2.backends.sql.Ec2
- # role_id_attribute = cn
- # role_member_attribute = roleOccupant
+@@ -221,8 +222,10 @@ driver = keystone.contrib.ec2.backends.sql.Ec2
  
-+[auth]
-+methods = password,token
+ [auth]
+ methods = password,token
+-password = keystone.auth.plugins.password.Password
+-token = keystone.auth.plugins.token.Token
 +password = keystone.auth.methods.password.Password
 +token = keystone.auth.methods.token.Token
-+
++#password = keystone.auth.plugins.password.Password
++#token = keystone.auth.plugins.token.Token
+ 
  [filter:debug]
  paste.filter_factory = keystone.common.wsgi:Debug.factory
- 
-@@ -161,29 +167,45 @@ paste.filter_factory = keystone.contrib.s3:S3Extension.factory
- [filter:url_normalize]
- paste.filter_factory = keystone.middleware:NormalizingFilter.factory
- 
-+[filter:sizelimit]
-+paste.filter_factory = keystone.middleware:RequestBodySizeLimiter.factory
-+
- [filter:stats_monitoring]
- paste.filter_factory = keystone.contrib.stats:StatsMiddleware.factory
- 
- [filter:stats_reporting]
- paste.filter_factory = keystone.contrib.stats:StatsExtension.factory
- 
-+[filter:access_log]
-+paste.filter_factory = keystone.contrib.access:AccessLogMiddleware.factory
-+
- [app:public_service]
- paste.app_factory = keystone.service:public_app_factory
- 
-+[app:service_v3]
-+paste.app_factory = keystone.service:v3_app_factory
-+
- [app:admin_service]
- paste.app_factory = keystone.service:admin_app_factory
- 
- [pipeline:public_api]
--pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension user_crud_extension public_service
-+pipeline = access_log sizelimit stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension user_crud_extension public_service
-+#pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug ec2_extension user_crud_extension public_service
- 
- [pipeline:admin_api]
--pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug stats_reporting ec2_extension s3_extension crud_extension admin_service
-+pipeline = access_log sizelimit stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug stats_reporting ec2_extension s3_extension crud_extension admin_service
-+#pipeline = stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug stats_reporting ec2_extension s3_extension crud_extension admin_service
-+
-+[pipeline:api_v3]
-+pipeline = access_log sizelimit stats_monitoring url_normalize token_auth admin_token_auth xml_body json_body debug stats_reporting ec2_extension s3_extension service_v3
- 
- [app:public_version_service]
--paste.app_factory = keystone.service:public_version_app_factory
-+pipeline = access_log sizelimit stats_monitoring url_normalize xml_body public_version_service
-+#paste.app_factory = keystone.service:public_version_app_factory
- 
- [app:admin_version_service]
--paste.app_factory = keystone.service:admin_version_app_factory
-+pipeline = access_log sizelimit stats_monitoring url_normalize xml_body admin_version_service
-+#paste.app_factory = keystone.service:admin_version_app_factory
- 
- [pipeline:public_version_api]
- pipeline = stats_monitoring url_normalize xml_body public_version_service
-@@ -194,9 +216,12 @@ pipeline = stats_monitoring url_normalize xml_body admin_version_service
- [composite:main]
- use = egg:Paste#urlmap
- /v2.0 = public_api
-+/v3 = api_v3
- / = public_version_api
- 
- [composite:admin]
- use = egg:Paste#urlmap
- /v2.0 = admin_api
-+/v3 = api_v3
- / = admin_version_api
-+
 ```
 
 
