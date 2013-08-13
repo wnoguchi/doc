@@ -5,10 +5,8 @@ LANから電源オンオフ。
 ## サーバー側
 
 ```
-yum -y install OpenIPMI
-yum -y install OpenIPMI-tools
-service ipmi start
-chkconfig ipmi on
+yum -y install OpenIPMI OpenIPMI-tools
+service ipmi start && chkconfig ipmi on
 ls -l /dev/ipmi*
 crw-rw----. 1 root root 247, 0  8月  9 00:06 2013 /dev/ipmi0
 ```
@@ -97,7 +95,12 @@ Chassis Power Control: Down/Off
 ```
 
 カリカリカリカリ・・・パチンッ。  
-おーーー。シャットダウンできたｗ
+おーーー。シャットダウンできた。
+
+**ただし、電源オフに関してはあらゆる操作を行なってどうしてもOSを正常終了できなくなった場合に
+行うオペレーションなので、むやみやたらにやらないほうがよさそう。
+再インストールしてちょっとyumかけたやつにやったらCentOS起動しなくなった。。。
+再インストール直後でipmi-tools入れてなかったからだろうか？**
 
 ```
 [root@localhost dahdi-linux]# ping 192.168.0.55
@@ -122,6 +125,11 @@ Chassis Power Control: Up/On
 
 普通にサーバー起動した。感動。
 これで、サーバが落ちてしまった！！なんてときにも、DCに走らなくてもよくなりました。よかったよかった。（ハード故障のときはだめなケースもありますが…）
+
+## その他
+
+ちなみに、ホストOSを再インストールしてもIPMIの設定はサーバーの不揮発メモリに残っているので同じ情報で電源オンオフできます。
+便利。
 
 ## 参考リンク
 

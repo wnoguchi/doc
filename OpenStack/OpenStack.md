@@ -380,8 +380,6 @@ iptables: モジュールを取り外し中:                          [  OK  ]
 epel正しく設定してないのがいけなかった。
 
 ```
-rpm -ivh http://ftp.riken.jp/Linux/fedora/epel/6/x86_64/epel-release-6-8.noarch.rpm
-cd /etc/yum.repos.d/
 cat <<EOF >/etc/yum.repos.d/openstack-grizzly.repo
 [epel-openstack-grizzly]
 name=OpenStack Grizzly Repository for EPEL 6
@@ -390,6 +388,7 @@ enabled=1
 skip_if_unavailable=1
 gpgcheck=0
 EOF
+yum clean all
 yum -y update
 ```
 
