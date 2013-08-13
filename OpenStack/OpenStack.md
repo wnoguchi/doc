@@ -867,11 +867,106 @@ AWSのEBSに相当するコンポーネントです。
 yum -y install openstack-cinder
 ```
 
-#### 設定
+#### Cinderの設定
+
+hagiさん [3.2.5. Volume Service(Cinder)のインストール — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/cinder_install.html) の設定だと動くのですが、
+wnoguchiのクソパッチだと動かないです。  
+見た目動いているように見えますけど
+
+```
+[root@stack01 cinder]# cinder list
+ERROR: Malformed request url
+```
+
+な感じのエラーが出ます。
+とりあえずあとで勉強のために残しています。  
+ここではhagiさんのパッチをあてます。
 
 ```
 cd /etc/cinder/
+パッチファイルをGitHubからダウンロード
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/cinder-config-hagi.patch
+正常にパッチがあたるかdry-runで確認
+patch -p1 --dry-run < cinder-config-hagi.patch
+うまくいけばパッチ適用。
+patch -p1 < cinder-config-hagi.patch
+```
 
+ちなみに、パッチの内容は以下のとおりです。
+
+```
+diff --git a/api-paste.ini b/api-paste.ini
+index 1838881..045cfe9 100644
+--- a/api-paste.ini
++++ b/api-paste.ini
+@@ -51,6 +51,13 @@ paste.filter_factory = cinder.api.middleware.auth:CinderKeystoneContext.factory
+ [filter:authtoken]
+ paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
+ service_protocol = http
+-service_host = 127.0.0.1
++service_host = stack01
+ service_port = 5000
++auth_host = stack01
++auth_port = 35357
++auth_protocol = http
++admin_tenant_name = service
++admin_user = nova
++admin_password = nova
+ signing_dir = /var/lib/cinder
++
+diff --git a/cinder.conf b/cinder.conf
+index 89105a6..aa739f5 100644
+--- a/cinder.conf
++++ b/cinder.conf
+@@ -1,18 +1,34 @@
+ [DEFAULT]
+-logdir = /var/log/cinder
++#misc
++verbose = True
++auth_strategy = keystone
++rootwrap_config = /etc/cinder/rootwrap.conf
++api_paste_config = /etc/cinder/api-paste.ini
++auth_strategy = keystone
+ state_path = /var/lib/cinder
+-lock_path = /var/lib/cinder/tmp
+-volumes_dir = /etc/cinder/volumes
+-iscsi_helper = tgtadm
+-sql_connection = mysql://cinder:cinder@localhost/cinder
++volumes_dir = /var/lib/cinder/volumes
++
++#log
++log_file=cinder.log
++log_dir=/var/log/cinder
++
++#osapi
++osapi_volume_extension = cinder.api.openstack.volume.contrib.standard_extensions
++
++#qpid
+ rpc_backend = cinder.openstack.common.rpc.impl_qpid
+-rootwrap_config = /etc/cinder/rootwrap.conf
+ 
+-[keystone_authtoken]
+-admin_tenant_name = %SERVICE_TENANT_NAME%
+-admin_user = %SERVICE_USER%
+-admin_password = %SERVICE_PASSWORD%
+-auth_host = 127.0.0.1
+-auth_port = 35357
+-auth_protocol = http
+-signing_dirname = /tmp/keystone-signing-cinder
++qpid_port = 5672
++#qpid_username =
++#qpid_password =
++
++#sql
++sql_connection = mysql://cinder:password@stack01/cinder?charset=utf8
++
++#volume
++volume_name_template = volume-%s
++volume_group = cinder-volumes
++
++#iscsi
++iscsi_helper = tgtadm
++
 ```
 
 #### MySQLにCinderのデータベース作成
@@ -881,50 +976,29 @@ MYSQL_PASS_CINDER=password
 NOVA_CONTOLLER_HOSTNAME=stack01
 mysql -uroot -pnova -e "drop database if exists cinder;"
 mysql -uroot -pnova -e "create database cinder character set utf8;"
-mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'%' identified by 'password';"
-mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'localhost' identified by 'password';"
-mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'stack01' identified by 'password';"
+mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'%' identified by '$MYSQL_PASS_CINDER';"
+mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'localhost' identified by '$MYSQL_PASS_CINDER';"
+mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'$NOVA_CONTOLLER_HOSTNAME' identified by '$MYSQL_PASS_CINDER';"
 mysql -uroot -pnova -e "flush privileges;"
 cinder-manage db sync
-
-2013-08-05 18:43:48     INFO [migrate.versioning.api] 0 -> 1... 
-2013-08-05 18:43:52     INFO [migrate.versioning.api] done
-2013-08-05 18:43:52     INFO [migrate.versioning.api] 1 -> 2... 
-2013-08-05 18:43:54     INFO [migrate.versioning.api] done
-2013-08-05 18:43:54     INFO [migrate.versioning.api] 2 -> 3... 
-2013-08-05 18:43:54     INFO [migrate.versioning.api] done
-2013-08-05 18:43:54     INFO [migrate.versioning.api] 3 -> 4... 
-2013-08-05 18:43:55     INFO [004_volume_type_to_uuid] Created foreign key volume_type_extra_specs_ibfk_1
-2013-08-05 18:43:55     INFO [migrate.versioning.api] done
-2013-08-05 18:43:55     INFO [migrate.versioning.api] 4 -> 5... 
-2013-08-05 18:43:55     INFO [migrate.versioning.api] done
-2013-08-05 18:43:55     INFO [migrate.versioning.api] 5 -> 6... 
-2013-08-05 18:43:56     INFO [migrate.versioning.api] done
-2013-08-05 18:43:56     INFO [migrate.versioning.api] 6 -> 7... 
-2013-08-05 18:43:56     INFO [migrate.versioning.api] done
-2013-08-05 18:43:56     INFO [migrate.versioning.api] 7 -> 8... 
-2013-08-05 18:43:56     INFO [migrate.versioning.api] done
-2013-08-05 18:43:56     INFO [migrate.versioning.api] 8 -> 9... 
-2013-08-05 18:43:56     INFO [migrate.versioning.api] done
 ```
 
-DBの権限設定間違ってしまったら以下のように直してください。
-
-```
-mysql -uroot -pnova -e "drop user cinder@'%';"
-mysql -uroot -pnova -e "drop user cinder@localhost;"
-mysql -uroot -pnova -e "drop user cinder@stack01;"
-mysql -uroot -pnova -e "flush privileges;"
-```
+#### tgtの設定（iSCSIの設定）
 
 ```
 sed -i "s@# include /etc/cinder/volumes/@include /etc/cinder/volumes/@" /etc/tgt/conf.d/cinder.conf
 echo "include /etc/tgt/conf.d/*.conf" >> /etc/tgt/targets.conf
 echo "include /var/lib/cinder/volumes/*" >> /etc/tgt/conf.d/cinder.conf
+```
 
-service tgtd restart
+tgtサービス自動起動設定。
+
+```
+service tgtd restart &&
 chkconfig tgtd on
 ```
+
+#### Cinderサービス自動起動設定。
 
 ```
 chown cinder:cinder /var/log/cinder/*
@@ -938,9 +1012,11 @@ do
 done
 ```
 
+#### Cinderでボリュームが作成できるかどうかテスト
+
 ```
-[root@wnoguchi cinder]# cinder list
-[root@wnoguchi cinder]# cinder create --display_name cinder_test 1
+[root@stack01 cinder]# cinder list
+[root@stack01 cinder]# cinder create --display_name cinder_test 1
 +---------------------+--------------------------------------+
 |       Property      |                Value                 |
 +---------------------+--------------------------------------+
@@ -959,19 +1035,19 @@ done
 |     volume_type     |                 None                 |
 +---------------------+--------------------------------------+
 
-
-[root@wnoguchi cinder]# cinder list
+[root@stack01 cinder]# cinder list
 +--------------------------------------+--------+--------------+------+-------------+----------+-------------+
 |                  ID                  | Status | Display Name | Size | Volume Type | Bootable | Attached to |
 +--------------------------------------+--------+--------------+------+-------------+----------+-------------+
 | 173fcd25-c298-41c0-8917-5c5e4eb43f12 | error  | cinder_test  |  1   |     None    |  false   |             |
 +--------------------------------------+--------+--------------+------+-------------+----------+-------------+
-[root@wnoguchi cinder]# cinder delete $(cinder list | grep cinder_test | awk '{print $2}')
-[root@wnoguchi cinder]# cinder list
+[root@stack01 cinder]# cinder delete $(cinder list | grep cinder_test | awk '{print $2}')
+[root@stack01 cinder]# cinder list
 ```
 
-
 ### Cloud compute (Nova)のインストール
+
+いよいよ計算機リソースを制御するコンポーネントをインストールします。
 
 ```
 yum install -y openstack-nova
@@ -1424,6 +1500,7 @@ documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)
 - [OpenStack Installation Guide for Red Hat Enterprise Linux, CentOS, and Fedora - OpenStack Installation Guide for Red Hat Enterprise Linux, CentOS, and Fedora  - Grizzly, 2013.1 with Object Storage 1.8.0](http://docs.openstack.org/grizzly/openstack-compute/install/yum/content/)
 - [virtualtech.jp/download/120907OpenStack.pdf](http://virtualtech.jp/download/120907OpenStack.pdf)
 ちょい古め。
+- [OpenStack Grizzly 構築スクリプト - jedipunkz' blog](http://jedipunkz.github.io/blog/2013/04/20/openstack-grizzly-installation-script/)
 
 ### 公式サイト的な
 

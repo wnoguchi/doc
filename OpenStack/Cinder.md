@@ -71,3 +71,4 @@ iSCSIで接続できるんだね。
 
 - [OpenStackの新機能、Cinderを使う | SourceForge.JP Magazine](http://sourceforge.jp/magazine/13/04/03/090000)
 - [OpenStack 2012.2で追加された新機能「Cinder」を使う - さくらのナレッジ](http://knowledge.sakura.ad.jp/tech/119/)
+- [OpenStack Cinder Deep Dive Grizzly Release](https://wiki.openstack.org/w/images/3/3b/Cinder-grizzly-deep-dive-pub.pdf)
