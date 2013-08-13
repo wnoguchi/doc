@@ -967,6 +967,7 @@ index 89105a6..aa739f5 100644
 +#iscsi
 +iscsi_helper = tgtadm
 +
+
 ```
 
 #### MySQLにCinderのデータベース作成
@@ -981,6 +982,25 @@ mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'localhost'
 mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'$NOVA_CONTOLLER_HOSTNAME' identified by '$MYSQL_PASS_CINDER';"
 mysql -uroot -pnova -e "flush privileges;"
 cinder-manage db sync
+2013-08-13 23:28:08     INFO [migrate.versioning.api] 0 -> 1... 
+2013-08-13 23:28:08     INFO [migrate.versioning.api] done
+2013-08-13 23:28:08     INFO [migrate.versioning.api] 1 -> 2... 
+2013-08-13 23:28:08     INFO [migrate.versioning.api] done
+2013-08-13 23:28:08     INFO [migrate.versioning.api] 2 -> 3... 
+2013-08-13 23:28:08     INFO [migrate.versioning.api] done
+2013-08-13 23:28:08     INFO [migrate.versioning.api] 3 -> 4... 
+2013-08-13 23:28:08     INFO [004_volume_type_to_uuid] Created foreign key volume_type_extra_specs_ibfk_1
+2013-08-13 23:28:08     INFO [migrate.versioning.api] done
+2013-08-13 23:28:08     INFO [migrate.versioning.api] 4 -> 5... 
+2013-08-13 23:28:08     INFO [migrate.versioning.api] done
+2013-08-13 23:28:08     INFO [migrate.versioning.api] 5 -> 6... 
+2013-08-13 23:28:08     INFO [migrate.versioning.api] done
+2013-08-13 23:28:08     INFO [migrate.versioning.api] 6 -> 7... 
+2013-08-13 23:28:08     INFO [migrate.versioning.api] done
+2013-08-13 23:28:08     INFO [migrate.versioning.api] 7 -> 8... 
+2013-08-13 23:28:08     INFO [migrate.versioning.api] done
+2013-08-13 23:28:08     INFO [migrate.versioning.api] 8 -> 9... 
+2013-08-13 23:28:08     INFO [migrate.versioning.api] done
 ```
 
 #### tgtの設定（iSCSIの設定）
@@ -1016,6 +1036,12 @@ done
 
 ```
 [root@stack01 cinder]# cinder list
+```
+
+何も出力されないことを確認。  
+実際に作成してみます。
+
+```
 [root@stack01 cinder]# cinder create --display_name cinder_test 1
 +---------------------+--------------------------------------+
 |       Property      |                Value                 |
@@ -1023,10 +1049,10 @@ done
 |     attachments     |                  []                  |
 |  availability_zone  |                 nova                 |
 |       bootable      |                false                 |
-|      created_at     |      2013-08-05T09:47:52.128907      |
+|      created_at     |      2013-08-13T14:29:30.753647      |
 | display_description |                 None                 |
 |     display_name    |             cinder_test              |
-|          id         | 173fcd25-c298-41c0-8917-5c5e4eb43f12 |
+|          id         | 2723f4a4-7125-43e2-aa61-f03ffc0fc254 |
 |       metadata      |                  {}                  |
 |         size        |                  1                   |
 |     snapshot_id     |                 None                 |
@@ -1034,20 +1060,37 @@ done
 |        status       |               creating               |
 |     volume_type     |                 None                 |
 +---------------------+--------------------------------------+
+```
 
+作成できたかどうかリストを確認します。
+
+```
 [root@stack01 cinder]# cinder list
-+--------------------------------------+--------+--------------+------+-------------+----------+-------------+
-|                  ID                  | Status | Display Name | Size | Volume Type | Bootable | Attached to |
-+--------------------------------------+--------+--------------+------+-------------+----------+-------------+
-| 173fcd25-c298-41c0-8917-5c5e4eb43f12 | error  | cinder_test  |  1   |     None    |  false   |             |
-+--------------------------------------+--------+--------------+------+-------------+----------+-------------+
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+
+|                  ID                  |   Status  | Display Name | Size | Volume Type | Bootable | Attached to |
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+
+| 2723f4a4-7125-43e2-aa61-f03ffc0fc254 | available | cinder_test  |  1   |     None    |  false   |             |
++--------------------------------------+-----------+--------------+------+-------------+----------+-------------+
+```
+
+ここで Status が error とかなる場合は LVM のボリュームグループ名の指定方法などに問題がある可能性があります。  
+available になっているのが確認できたら削除します。  
+実際のブロックストレージの作成はあとでWebインタフェース Horizon からやってみます。
+
+```
 [root@stack01 cinder]# cinder delete $(cinder list | grep cinder_test | awk '{print $2}')
+```
+
+削除されるまでちょっとだけ時間がかかります。
+
+```
 [root@stack01 cinder]# cinder list
 ```
 
 ### Cloud compute (Nova)のインストール
 
-いよいよ計算機リソースを制御するコンポーネントをインストールします。
+いよいよ計算機リソースを制御するコンポーネントをインストールします。  
+一口にNovaと言ってもその中にめちゃくちゃサブコンポーネントが詰まってて複雑なんだそうです。
 
 ```
 yum install -y openstack-nova
@@ -1058,9 +1101,11 @@ Error: failure: repodata/61fe111b1f291be718a48d77219aef4c1171e05d10115a71da113b8
  You could try running: rpm -Va --nofiles --nodigest
 ```
 
-どうしてもエラーになる。
-URL変わったのかな。
+なんだか何回やってもこのエラー出ますね。なんなんでしょう。  
+URL変わったのかな。  
 リポジトリメタデータクリアする。
+
+[yumリポジトリのキャッシュをクリアする - think-tの晴耕雨読](http://d.hatena.ne.jp/think-t/20130408/p1)
 
 ```
 yum clean all
@@ -1074,7 +1119,26 @@ yum install -y openstack-nova
 
 今度はうまくいった。
 
-[yumリポジトリのキャッシュをクリアする - think-tの晴耕雨読](http://d.hatena.ne.jp/think-t/20130408/p1)
+#### Novaの設定を行う
+
+詳細はこちらを。
+
+[3.2.6. Cloud compute (Nova)のインストール — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/nova_install.html)
+
+ここではパッチをあてるだけにします。  
+複雑なのであとで勉強。
+
+```
+cd /etc/nova/
+パッチファイルをGitHubからダウンロード
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/nova-config.patch
+正常にパッチがあたるかdry-runで確認
+patch -p1 --dry-run < nova-config.patch
+うまくいけばパッチ適用。
+patch -p1 < nova-config.patch
+```
+
+#### MySQLにNovaデータベースを作成する
 
 ```
 MYSQL_PASS_NOVA=password
@@ -1087,7 +1151,8 @@ mysql -uroot -pnova -e "grant all privileges on nova.* to 'nova'@'$NOVA_CONTOLLE
 nova-manage db sync
 ```
 
-サービスめっちゃ多い。
+サービスめっちゃ多い。  
+シェルスクリプトでぶん回します。hagiさんの。
 
 ```
 for proc in api metadata-api cert network compute objectstore console scheduler consoleauth xvpvncproxy conductor
@@ -1103,51 +1168,59 @@ done
 サービスがちゃんと起動しているか確認。
 
 ```
-[root@wnoguchi nova]# nova-manage service list
+[root@stack01 nova]# nova-manage service list
 Binary           Host                                 Zone             Status     State Updated_At
-nova-cert        stack01                              internal         enabled    :-)   2013-08-05 10:08:46
-nova-scheduler   stack01                              internal         enabled    :-)   2013-08-05 10:08:47
-nova-console     stack01                              internal         enabled    :-)   2013-08-05 10:08:47
-nova-conductor   stack01                              internal         enabled    :-)   2013-08-05 10:08:48
-nova-consoleauth stack01                              internal         enabled    :-)   2013-08-05 10:08:47
-nova-network     stack01                              internal         enabled    :-)   2013-08-05 10:08:47
+nova-cert        stack01                              internal         enabled    :-)   2013-08-13 14:45:03
+nova-console     stack01                              internal         enabled    :-)   2013-08-13 14:45:04
+nova-scheduler   stack01                              internal         enabled    :-)   2013-08-13 14:45:04
+nova-consoleauth stack01                              internal         enabled    :-)   2013-08-13 14:45:04
+nova-conductor   stack01                              internal         enabled    :-)   2013-08-13 14:45:05
+nova-network     stack01                              internal         enabled    :-)   2013-08-13 14:45:04
 nova-compute     stack01                              nova             enabled    :-)   None      
 ```
 
 ### Dashboard (Horizon)のインストール
 
-```
-yum -y install openstack-dashboard openstack-nova-novncproxy
+いよいよWebインタフェースをインストールします。  
+Pythonで書いてあります。  
+Djangoです。  
+海外の方はほんとPythonが好きだなあって思います。
 
-service openstack-nova-novncproxy start
+```
+yum -y install openstack-dashboard openstack-nova-novncproxy &&
+service openstack-nova-novncproxy start &&
 chkconfig openstack-nova-novncproxy on
 ```
 
+#### iptablesの設定及び再起動
 
-```
-3.2.7.3. iptablesの設定及び再起動
 iptablesの設定が必要な場合です。
 iptablesにMySQL(3306)、noVNC(6080)、Apache(443,80)、Glance(9292)、Memcached(11211)、Qpid(5672)のポート開放を設定します。
-# sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 11211 -j ACCEPT' /etc/sysconfig/iptables
-# sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 9292 -j ACCEPT' /etc/sysconfig/iptables
-# sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 6080 -j ACCEPT' /etc/sysconfig/iptables
-# sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 5672 -j ACCEPT' /etc/sysconfig/iptables
-# sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 3306 -j ACCEPT' /etc/sysconfig/iptables
-# sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT' /etc/sysconfig/iptables
-# sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT' /etc/sysconfig/iptables
-# service iptables restart
-```
-
-Apacheの再起動及び自動起動の設定
+ちょっとここまでは手が回ってません。
 
 ```
-service httpd restart
-service openstack-nova-novncproxy restart
-chkconfig httpd on
+sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 11211 -j ACCEPT' /etc/sysconfig/iptables
+sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 9292 -j ACCEPT' /etc/sysconfig/iptables
+sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 6080 -j ACCEPT' /etc/sysconfig/iptables
+sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 5672 -j ACCEPT' /etc/sysconfig/iptables
+sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 3306 -j ACCEPT' /etc/sysconfig/iptables
+sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT' /etc/sysconfig/iptables
+sed -i '10a-A INPUT -m state --state NEW -m tcp -p tcp --dport 80 -j ACCEPT' /etc/sysconfig/iptables
+service iptables restart
+```
+
+#### Apacheの再起動及び自動起動の設定
+
+```
+service httpd restart &&
+service openstack-nova-novncproxy restart &&
+chkconfig httpd on &&
 chkconfig openstack-nova-novncproxy on
 ```
 
 ### OpenStack利用開始
+
+やっと使える。。。
 
 ```
 useradd stack
@@ -1162,9 +1235,16 @@ KEYSTONERC
 chown stack:stack /home/stack/keystonerc
 ```
 
-novaマネージネットワークの構築
+#### novaマネージネットワークの構築
 
-自宅内LANでは192.168.0.0/24のネットワーク体系を使用しているのでこのネットワークに干渉しない設定ならOKです。
+自宅内LANでは `192.168.0.0/24` のネットワーク体系を使用しているのでこのネットワークに干渉しない設定ならOKです。
+サブネットを25より広くしようとすると
+
+```
+2013-08-13 23:51:39.722 WARNING nova.network.manager [req-68dfba3f-88cd-4562-8bc7-d923856a86ee None None] Subnet(s) too large, defaulting to /25.  To override, specify network_size flag.
+```
+
+と怒られます。しょうがないのでデフォルトの25を指定します。
 
 ```
 nova-manage network create \
@@ -1175,13 +1255,15 @@ nova-manage network create \
 2013-08-05 19:17:12.835 8906 INFO nova.network.driver [-] Loading network driver 'nova.network.linux_net'
 ```
 
+作られたネットワークを見る。
+
 ```
-[root@wnoguchi nova]# nova-manage network list
-id      IPv4                    IPv6            start address   DNS1            DNS2            VlanID          project          uuid           
-1       10.0.0.0/25             None            10.0.0.2        8.8.4.4         None            None            None             722c6be4-ba86-45d1-ad8b-9900f4178e58
+[root@stack01 nova]# nova-manage network list
+id      IPv4                    IPv6            start address   DNS1           DNS2             VlanID          project         uuid           
+2       10.0.0.0/25             None            10.0.0.2        8.8.4.4        None             None            None            028454c6-5608-4db3-adab-9637f3524c06
 ```
 
-フローティングIPの定義
+#### フローティングIPの定義
 
 使っていない社内LAN IPのレンジを切り出して割り当てましょう。
 
@@ -1210,43 +1292,42 @@ None    192.168.0.125   None    nova    br100
 None    192.168.0.126   None    nova    br100
 ```
 
-
-キーペアの作成
+#### キーペアの作成
 
 このあたりで「あーこれAWSのマネジメントコンソールで似たようなこと見たことある」ってなりました。
 
 ```
 cd /home/stack
-[root@wnoguchi stack]# nova keypair-add mykey > mykey
-[root@wnoguchi stack]# chown stack:stack mykey
-[root@wnoguchi stack]# chmod 600 mykey
-[root@wnoguchi stack]# nova keypair-list
+[root@stack01 stack]# nova keypair-add mykey > mykey
+[root@stack01 stack]# chown stack:stack mykey
+[root@stack01 stack]# chmod 600 mykey
+[root@stack01 stack]# nova keypair-list
 +-------+-------------------------------------------------+
 | Name  | Fingerprint                                     |
 +-------+-------------------------------------------------+
-| mykey | 59:56:53:97:22:5c:ad:73:39:93:ea:7c:3e:ec:1a:3f |
+| mykey | 16:cb:af:e8:87:bf:58:05:38:e0:55:98:dd:b4:d9:8a |
 +-------+-------------------------------------------------+
 ```
 
-セキュリティグループの設定
+#### セキュリティグループの設定
 
-セキュリティグループの設定もec2のインスタンスで既視感。
-だからopenstackとec2は互換性があるって言われるのか。
+セキュリティグループの設定もEC2のインスタンスで既視感。  
+だからOpenStackとEC2は互換性があるって言われるのか。
 
 ```
-[root@wnoguchi stack]# nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
+[root@stack01 stack]# nova secgroup-add-rule default icmp -1 -1 0.0.0.0/0
 +-------------+-----------+---------+-----------+--------------+
 | IP Protocol | From Port | To Port | IP Range  | Source Group |
 +-------------+-----------+---------+-----------+--------------+
 | icmp        | -1        | -1      | 0.0.0.0/0 |              |
 +-------------+-----------+---------+-----------+--------------+
-[root@wnoguchi stack]# nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
+[root@stack01 stack]# nova secgroup-add-rule default tcp 22 22 0.0.0.0/0
 +-------------+-----------+---------+-----------+--------------+
 | IP Protocol | From Port | To Port | IP Range  | Source Group |
 +-------------+-----------+---------+-----------+--------------+
 | tcp         | 22        | 22      | 0.0.0.0/0 |              |
 +-------------+-----------+---------+-----------+--------------+
-[root@wnoguchi stack]# nova secgroup-list
+[root@stack01 stack]# nova secgroup-list
 +---------+-------------+
 | Name    | Description |
 +---------+-------------+
@@ -1257,7 +1338,7 @@ cd /home/stack
 icmpにポートとかいう概念はないから-1になってます。
 
 ```
-[root@wnoguchi stack]# nova secgroup-list-rules default
+[root@stack01 stack]# nova secgroup-list-rules default
 +-------------+-----------+---------+-----------+--------------+
 | IP Protocol | From Port | To Port | IP Range  | Source Group |
 +-------------+-----------+---------+-----------+--------------+
@@ -1267,7 +1348,7 @@ icmpにポートとかいう概念はないから-1になってます。
 ```
 
 ホスト名はOpenStackをインストールしたサーバーのアドレスを指定。
-/dashboardを入れないとapacheのデフォルトページだけで焦ります。
+`/dashboard` を入れないとApacheのデフォルトページが表示されるので注意が必要です。
 
 http://192.168.0.10/dashboard
 
@@ -1276,111 +1357,76 @@ http://192.168.0.10/dashboard
 - ID: `admin`
 - PASS: `secrete`
 
-起動しない。。。
+ここでNovaの設定ミスっててインスタンス動きませんでした。（[Novaが起動しない件](Novaが起動しない件.md)）
+
+#### インスタンスを実際に作成してみる
+
+**ここで実際にインスタンスを起動してみます。**
+
+[3.2.8. OpenStackの利用 — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/openstack_use.html)
+
+が詳しいです。
+
+これってけっこうタイミングが重要で、私最初起動のときインスタンス起動エラーになって
+「なんでだー」って思ったりしたんです。
+
+次の2パターンを繰り返したら直る時があるってことがわかりました。
+
+##### iptablesを停止する
+
+殺したはずなのにいつの間にか立ち上がってるときがあります。かんべん。  
+まあ、iptablesちゃんと設定すればいいだけなんですけどね。。。
 
 ```
-nova boot --flavor 1 --image dd8143e2-e54b-4908-b56e-c76f1b5c14ac f17_001 --key_name mykey
-
-[root@wnoguchi stack]# nova image-list
-+--------------------------------------+----------+--------+--------+
-| ID                                   | Name     | Status | Server |
-+--------------------------------------+----------+--------+--------+
-| dd8143e2-e54b-4908-b56e-c76f1b5c14ac | f17-jeos | ACTIVE |        |
-+--------------------------------------+----------+--------+--------+
-[root@wnoguchi stack]# nova flavor-list
-+----+-----------+-----------+------+-----------+------+-------+-------------+-----------+-------------+
-| ID | Name      | Memory_MB | Disk | Ephemeral | Swap | VCPUs | RXTX_Factor | Is_Public | extra_specs |
-+----+-----------+-----------+------+-----------+------+-------+-------------+-----------+-------------+
-| 1  | m1.tiny   | 512       | 0    | 0         |      | 1     | 1.0         | True      | {}          |
-| 2  | m1.small  | 2048      | 20   | 0         |      | 1     | 1.0         | True      | {}          |
-| 3  | m1.medium | 4096      | 40   | 0         |      | 2     | 1.0         | True      | {}          |
-| 4  | m1.large  | 8192      | 80   | 0         |      | 4     | 1.0         | True      | {}          |
-| 5  | m1.xlarge | 16384     | 160  | 0         |      | 8     | 1.0         | True      | {}          |
-+----+-----------+-----------+------+-----------+------+-------+-------------+-----------+-------------+
-[root@wnoguchi stack]# passwd stack
-ユーザー stack のパスワードを変更。
-新しいパスワード:
-新しいパスワードを再入力してください:
-passwd: 全ての認証トークンが正しく更新できました。
-[root@wnoguchi stack]# nova list
-+--------------------------------------+--------------+--------+----------+
-| ID                                   | Name         | Status | Networks |
-+--------------------------------------+--------------+--------+----------+
-| 0e34a951-3204-43d6-9d69-b8d97d482cfe | vmtest       | ERROR  |          |
-| 12b86b96-bbcb-4b4f-8b96-4eed67ef6cec | wataru-no-vm | ERROR  |          |
-+--------------------------------------+--------------+--------+----------+
-
-
-nova boot --flavor 1 --image dd8143e2-e54b-4908-b56e-c76f1b5c14ac f17_001 --key_name mykey
-
-
-+-------------------------------------+--------------------------------------+
-| Property                            | Value                                |
-+-------------------------------------+--------------------------------------+
-| OS-EXT-STS:task_state               | scheduling                           |
-| image                               | f17-jeos                             |
-| OS-EXT-STS:vm_state                 | building                             |
-| OS-EXT-SRV-ATTR:instance_name       | instance-00000003                    |
-| flavor                              | m1.tiny                              |
-| id                                  | e5cb7f4a-a752-499a-ae74-cb0357b2d95f |
-| security_groups                     | [{u'name': u'default'}]              |
-| user_id                             | e9dafc41e0b747dd8947bb573a4a617a     |
-| OS-DCF:diskConfig                   | MANUAL                               |
-| accessIPv4                          |                                      |
-| accessIPv6                          |                                      |
-| progress                            | 0                                    |
-| OS-EXT-STS:power_state              | 0                                    |
-| OS-EXT-AZ:availability_zone         | nova                                 |
-| config_drive                        |                                      |
-| status                              | BUILD                                |
-| updated                             | 2013-08-05T10:43:56Z                 |
-| hostId                              |                                      |
-| OS-EXT-SRV-ATTR:host                | None                                 |
-| key_name                            | mykey                                |
-| OS-EXT-SRV-ATTR:hypervisor_hostname | None                                 |
-| name                                | f17_001                              |
-| adminPass                           | mepEtDjG8dL7                         |
-| tenant_id                           | 439df062c81244a1af4f977f1450990c     |
-| created                             | 2013-08-05T10:43:56Z                 |
-| metadata                            | {}                                   |
-+-------------------------------------+--------------------------------------+
+service iptables stop
+chkconfig iptables off
 ```
+
+#### ひたすらNovaのコンポーネントを再起動する
+
+全部OKになるまでひたすらぶん回します。
 
 ```
 for proc in api metadata-api cert network compute objectstore console scheduler consoleauth xvpvncproxy conductor
 do
   service openstack-nova-$proc restart
 done
+for proc in api metadata-api cert network compute objectstore console scheduler consoleauth xvpvncproxy conductor
+do
+  chkconfig openstack-nova-$proc on
+done
+
+openstack-nova-api を停止中:                               [  OK  ]
+openstack-nova-api を起動中:                               [  OK  ]
+openstack-nova-metadata-api を停止中:                      [  OK  ]
+openstack-nova-metadata-api を起動中:                      [  OK  ]
+openstack-nova-cert を停止中:                              [  OK  ]
+openstack-nova-cert を起動中:                              [  OK  ]
+openstack-nova-network を停止中:                           [  OK  ]
+openstack-nova-network を起動中:                           [  OK  ]
+openstack-nova-compute を停止中:                           [  OK  ]
+openstack-nova-compute を起動中:                           [  OK  ]
+openstack-nova-objectstore を停止中:                       [  OK  ]
+openstack-nova-objectstore を起動中:                       [  OK  ]
+openstack-nova-console を停止中:                           [  OK  ]
+openstack-nova-console を起動中:                           [  OK  ]
+openstack-nova-scheduler を停止中:                         [  OK  ]
+openstack-nova-scheduler を起動中:                         [  OK  ]
+openstack-nova-consoleauth を停止中:                       [  OK  ]
+openstack-nova-consoleauth を起動中:                       [  OK  ]
+openstack-nova-xvpvncproxy を停止中:                       [  OK  ]
+openstack-nova-xvpvncproxy を起動中:                       [  OK  ]
+openstack-nova-conductor を停止中:                         [  OK  ]
+openstack-nova-conductor を起動中:                         [  OK  ]
+
 ```
 
-ごにょごにょ。
+設定ファイル
+
+#### OpenStack内部ネットワークにてpingの導通を確認。
 
 ```
-[root@wnoguchi stack]# nova list
-+--------------------------------------+--------------+--------+------------------------+
-| ID                                   | Name         | Status | Networks               |
-+--------------------------------------+--------------+--------+------------------------+
-| e5cb7f4a-a752-499a-ae74-cb0357b2d95f | f17_001      | ERROR  |                        |
-| 84e1c17b-6692-4b64-b12d-cf742c4d140b | f17_002      | ERROR  |                        |
-| 18c186c4-9386-44ed-80ac-7a258a9e7f25 | f17_003      | BUILD  | nova_network1=10.0.0.2 |
-| 0e34a951-3204-43d6-9d69-b8d97d482cfe | vmtest       | ERROR  |                        |
-| 12b86b96-bbcb-4b4f-8b96-4eed67ef6cec | wataru-no-vm | ERROR  |                        |
-+--------------------------------------+--------------+--------+------------------------+
-```
-
-ああ、やっと起動した。
-
-```
-vi /etc/nova/nova.conf
-```
-
-のIP設定が間違ってたのか。。。
-詳しくはnova設定のパッチ見てください。
-
-OpenStack内部ネットワークにてpingの導通を確認。
-
-```
-[root@wnoguchi stack]# ping 10.0.0.2
+[root@stack01 stack]# ping 10.0.0.2
 PING 10.0.0.2 (10.0.0.2) 56(84) bytes of data.
 64 bytes from 10.0.0.2: icmp_seq=1 ttl=64 time=0.220 ms
 64 bytes from 10.0.0.2: icmp_seq=2 ttl=64 time=0.175 ms
@@ -1408,7 +1454,7 @@ round-trip min/avg/max/stddev = 0.849/1.235/1.839/0.432 ms
 ちゃんとKVMにインスタンス割り当てられてるかな。
 
 ```
-[root@wnoguchi stack]# virsh list --all
+[root@stack01 stack]# virsh list --all
  Id    名前                         状態
 ----------------------------------------------------
  1     instance-00000005              実行中
@@ -1424,9 +1470,15 @@ RSA key fingerprint is ab:8a:97:a4:bf:ab:cb:cd:18:d8:dc:85:0b:2c:39:b4.
 Are you sure you want to continue connecting (yes/no)? yes
 Warning: Permanently added '192.168.0.114' (RSA) to the list of known hosts.
 Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
-localhost:OpenStack noguchiwataru$ vi ~/.ssh/ostackkey.key
-localhost:OpenStack noguchiwataru$ chmod 600 ~/.ssh/ostackkey.key
-localhost:OpenStack noguchiwataru$ ssh ec2-user@192.168.0.114 -i ~/.ssh/ostackkey.key
+```
+
+rootはそのままログイン出来ない。  
+AWSでおなじみの `ec2-user` でさっき作った鍵をコピペして鍵指定してつないでみる。
+
+```
+localhost:OpenStack noguchiwataru$ vi ~/.ssh/openstack-default.key
+localhost:OpenStack noguchiwataru$ chmod 600 ~/.ssh/openstack-default.key
+localhost:OpenStack noguchiwataru$ ssh ec2-user@192.168.0.114 -i ~/.ssh/openstack-default.key
 [ec2-user@f17-003 ~]$ ls
 [ec2-user@f17-003 ~]$ ifconfig
 eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
@@ -1449,15 +1501,13 @@ lo: flags=73<UP,LOOPBACK,RUNNING>  mtu 16436
 ```
 
 外にもいける。
-さっき作ったsshキーペアでec2-userにログインできた。
-rootは現在のところパス無しでいけるみたい。
+さっき作ったsshキーペアで `ec2-user` にログインできた。
+`root` は現在のところパス無しでいけるみたい。
 
-このあたりまでくるともうec2とおんなじですね。
-awsは超便利版みたいな感じ。
+このあたりまでくるともうEC2とおんなじですね。
+AWSは超便利版みたいな感じ。
 
 リブートしてもいける。
-
-あとでまとめます。
 
 ログイン画面  
 ![](img/login.png)
@@ -1480,6 +1530,10 @@ awsは超便利版みたいな感じ。
 
 シリアルコンソールも使える  
 ![](img/serial.png)
+
+なんというか、動いたときは感動したのですが、動かなかった時の絶望感は半端じゃ無いですね。。。  
+コンポーネントがたくさんあってそれに加えて膨大なログが分散してるのでどこでエラーが発生したのか特定するのが大変。。。  
+とりあえずそれっぽく使えるようになったけど、もっと勉強しなきゃだなあ・・・。
 
 ## 参考サイト
 

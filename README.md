@@ -46,6 +46,13 @@ DNS / Postfix / KVM / CentOS / Ubuntu / bash
 
 Contact me: wnoguchi@pg1x.com
 
+#### Organization
+
+株式会社ユニキャストに所属。  
+ネットワークインフラ周り〜システム開発まで幅広く担当させていただいています。  
+http://www.unicast.ne.jp/  
+http://lab.unicast.ne.jp/
+
 #### GitHub
 
 https://github.com/wnoguchi
@@ -69,11 +76,6 @@ https://www.facebook.com/watarunoguchi.0727
 #### Blog
 
 http://blog.pg1x.com/
-
-#### Organization
-
-http://www.unicast.ne.jp/  
-http://lab.unicast.ne.jp/
 
 #### Tumblr
 
