@@ -348,7 +348,7 @@ patch -p1 < keystone-config.patch
 
 ちなみに、パッチの内容は以下のとおりです。
 
-```
+```diff
 diff --git a/keystone.conf b/keystone.conf
 index 2375b32..3335b43 100644
 --- a/keystone.conf
@@ -619,7 +619,7 @@ patch -p1 < glance-config.patch
 
 ちなみに、パッチの内容は以下のとおりです。
 
-```
+```diff
 diff --git a/glance-api.conf b/glance-api.conf
 index 56e9496..9ee2714 100644
 --- a/glance-api.conf
@@ -894,7 +894,7 @@ patch -p1 < cinder-config-hagi.patch
 
 ちなみに、パッチの内容は以下のとおりです。
 
-```
+```diff
 diff --git a/api-paste.ini b/api-paste.ini
 index 1838881..045cfe9 100644
 --- a/api-paste.ini
