@@ -2,7 +2,7 @@ diff --git a/api-paste.ini b/api-paste.ini
 index 1838881..1b6808b 100644
 --- a/api-paste.ini
 +++ b/api-paste.ini
-@@ -51,6 +51,6 @@ paste.filter_factory = cinder.api.middleware.auth:CinderKeysto
+@@ -51,6 +51,6 @@ paste.filter_factory = cinder.api.middleware.auth:CinderKeystoneContext.factory
  [filter:authtoken]
  paste.filter_factory = keystoneclient.middleware.auth_token:filter_factory
  service_protocol = http
