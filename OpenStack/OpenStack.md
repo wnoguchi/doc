@@ -56,6 +56,13 @@ Amazon s3的なやつ。
 documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)  
 を大いに参考にさせていただいています。
 
+最近はこのへんのことを全自動でやってくれるものがいろいろあるようですが、  
+これからプライベートクラウドを運用しようとしてこれだけ複雑なものを
+初めから全自動でインストールしようとすると、どこで何が起こっているのかわからないし、  
+トラブった時に死ぬので、いったん一からコンポーネントをひとつひとつインストールしていこうと思います。
+
+これでも結構簡単になったほうで、日本語のドキュメントがあるだけありがたいです。
+
 ### システム構成
 
 - サーバー: FUJITSU Server PRIMERGY RX100 S7
@@ -322,19 +329,24 @@ yum install -y openstack-keystone
 ```
 
 設定については基本的にコメント外すだけですが、直す箇所が多いのでパッチで見たほうが便利です。  
+現時点での私の設定変更内容がgithubにあがっています。  
+もちろんGrizzlyのコンポーネント設定ファイルのデフォルトが変更になった場合等はうまくパッチがあたらないので  
+参考程度にとらえてください。  
 git形式のパッチなのでp0ではなくp1で当ててください。  
 不安な人は `--dry-run` してみてください。  
 最後の最終行の改行で引っかからなければいいんだけど・・・。
 
 ```
 cd /etc/keystone/
+パッチファイルをGitHubからダウンロード
 wget https://raw.github.com/wnoguchi/doc/master/OpenStack/keystone-config.patch
+正常にパッチがあたるかdry-runで確認
 patch -p1 --dry-run < keystone-config.patch
+うまくいけばパッチ適用。
 patch -p1 < keystone-config.patch
 ```
 
-パッチの内容は以下のとおりです。
-
+ちなみに、パッチの内容は以下のとおりです。
 
 ```
 diff --git a/keystone.conf b/keystone.conf
@@ -437,6 +449,7 @@ index 2375b32..3335b43 100644
  paste.filter_factory = keystone.common.wsgi:Debug.factory
 ```
 
+#### MySQL関係の設定
 
 ```
 MYSQL_PASS_KEYSTONE=password
@@ -450,15 +463,15 @@ keystone-manage db_sync
 ```
 
 ```
-chown keystone:keystone /var/log/keystone -R
-service openstack-keystone restart
+chown keystone:keystone /var/log/keystone -R &&
+service openstack-keystone restart &&
 chkconfig openstack-keystone on
 service openstack-keystone status
 
 keystone (pid  6358) を実行中...
 ```
 
-データ投入テスト
+#### データ投入テスト
 
 ```
 cd /usr/local/src ; cp -a /usr/share/openstack-keystone/sample_data.sh .
@@ -530,18 +543,19 @@ export ENABLE_ENDPOINTS=yes
 |  service_id |      7d3ee110b7cb4a6581770282c7d7ca12     |
 +-------------+-------------------------------------------+
 
-export OS_SERVICE_TOKEN=ADMIN
-export OS_SERVICE_ENDPOINT=http://stack01:35357/v2.0/
+[root@stack01 src]# export OS_SERVICE_TOKEN=ADMIN
+[root@stack01 src]# export OS_SERVICE_ENDPOINT=http://stack01:35357/v2.0/
 
 
-[root@wnoguchi src]# keystone tenant-list
+[root@stack01 src]# keystone tenant-list
 +----------------------------------+---------+---------+
 |                id                |   name  | enabled |
 +----------------------------------+---------+---------+
 | 439df062c81244a1af4f977f1450990c |   demo  |   True  |
 | 8949bace05894bc4bfac9f6b1d93fdf3 | service |   True  |
 +----------------------------------+---------+---------+
-[root@wnoguchi src]# keystone user-list
+
+[root@stack01 src]# keystone user-list
 +----------------------------------+--------+---------+-------+
 |                id                |  name  | enabled | email |
 +----------------------------------+--------+---------+-------+
@@ -551,6 +565,7 @@ export OS_SERVICE_ENDPOINT=http://stack01:35357/v2.0/
 | 19748c3737404b12b22a54ae7c66e31c |  nova  |   True  |       |
 | 81d5b89a3e7a42bb80b7081ad88e9aae | swift  |   True  |       |
 +----------------------------------+--------+---------+-------+
+
 [root@wnoguchi src]# keystone role-list
 +----------------------------------+----------+
 |                id                |   name   |
@@ -558,6 +573,7 @@ export OS_SERVICE_ENDPOINT=http://stack01:35357/v2.0/
 | 9fe2ff9ee4384b1894a90878d3e92bab | _member_ |
 | 0f930c30105848aea75c599954a3de60 |  admin   |
 +----------------------------------+----------+
+
 [root@wnoguchi src]# keystone service-list
 +----------------------------------+----------+--------------+---------------------------+
 |                id                |   name   |     type     |        description        |
@@ -569,6 +585,7 @@ export OS_SERVICE_ENDPOINT=http://stack01:35357/v2.0/
 | 7d3ee110b7cb4a6581770282c7d7ca12 |  swift   | object-store |       Swift Service       |
 | c047229f68a9422a82ce05031680b1f3 |  volume  |    volume    |    Nova Volume Service    |
 +----------------------------------+----------+--------------+---------------------------+
+
 [root@wnoguchi src]# keystone endpoint-list
 +----------------------------------+-----------+----------------------------------------------------+----------------------------------------------------+----------------------------------------------------+----------------------------------+
 |                id                |   region  |                     publicurl                      |                    internalurl                     |                      adminurl                      |            service_id            |
@@ -582,38 +599,148 @@ export OS_SERVICE_ENDPOINT=http://stack01:35357/v2.0/
 +----------------------------------+-----------+----------------------------------------------------+----------------------------------------------------+----------------------------------------------------+----------------------------------+
 ```
 
-
 ### Image delivery and registration (Glance)のインストール
 
-
-
-まず、SQL接続用設定を変更します。
-
 ```
-# cd /etc/glance
-# vi glance-api.conf glance-registry.conf
-sql_connection = mysql://glance:password@stack01/glance?charset=utf8
-
-[keystone_authtoken]の項目を変更します。
-
-admin_tenant_name = service
-admin_user = glance
-admin_password = glance
-
-[paste_deploy]の項目にkeystoneの設定を追加します。
-
-[paste_deploy]
-flavor = keystone
-
-また、ホスト名を変更しておきます。こちらもホスト名は適切なもので設定して下さい。
-
-sed -i "s#127.0.0.1#stack01#" /etc/glance/glance-api.conf
-sed -i "s#localhost#stack01#" /etc/glance/glance-api.conf
-sed -i "s#127.0.0.1#stack01#" /etc/glance/glance-registry.conf
-sed -i "s#localhost#stack01#" /etc/glance/glance-registry.conf
+yum -y install openstack-glance
 ```
 
-このあたりは複雑なのでpatchファイル見てください。
+設定します。
+
+```
+cd /etc/glance/
+パッチファイルをGitHubからダウンロード
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/glance-config.patch
+正常にパッチがあたるかdry-runで確認
+patch -p1 --dry-run < glance-config.patch
+うまくいけばパッチ適用。
+patch -p1 < glance-config.patch
+```
+
+ちなみに、パッチの内容は以下のとおりです。
+
+```
+diff --git a/glance-api.conf b/glance-api.conf
+index 56e9496..9ee2714 100644
+--- a/glance-api.conf
++++ b/glance-api.conf
+@@ -46,7 +46,8 @@ backlog = 4096
+ # SQLAlchemy connection string for the reference implementation
+ # registry server. Any valid SQLAlchemy connection string is fine.
+ # See: http://www.sqlalchemy.org/docs/05/reference/sqlalchemy/connections.html#sqlalchemy.create_engine
+-sql_connection = mysql://glance:glance@localhost/glance
++#sql_connection = mysql://glance:glance@stack01/glance
++sql_connection = mysql://glance:password@stack01/glance?charset=utf8
+ 
+ # Period in seconds after which SQLAlchemy should reestablish its connection
+ # to the database.
+@@ -163,7 +164,7 @@ notifier_strategy = noop
+ 
+ # Configuration options if sending notifications via rabbitmq (these are
+ # the defaults)
+-rabbit_host = localhost
++rabbit_host = stack01
+ rabbit_port = 5672
+ rabbit_use_ssl = false
+ rabbit_userid = guest
+@@ -177,7 +178,7 @@ rabbit_durable_queues = False
+ # the defaults)
+ qpid_notification_exchange = glance
+ qpid_notification_topic = notifications
+-qpid_host = localhost
++qpid_host = stack01
+ qpid_port = 5672
+ qpid_username =
+ qpid_password =
+@@ -207,8 +208,8 @@ swift_store_auth_version = 2
+ # Address where the Swift authentication service lives
+ # Valid schemes are 'http://' and 'https://'
+ # If no scheme specified,  default to 'https://'
+-# For swauth, use something like '127.0.0.1:8080/v1.0/'
+-swift_store_auth_address = 127.0.0.1:5000/v2.0/
++# For swauth, use something like 'stack01:8080/v1.0/'
++swift_store_auth_address = stack01:5000/v2.0/
+ 
+ # User to authenticate against the Swift authentication service
+ # If you use Swift authentication service, set it to 'account':'user'
+@@ -271,7 +272,7 @@ swift_enable_snet = False
+ # Address where the S3 authentication service lives
+ # Valid schemes are 'http://' and 'https://'
+ # If no scheme specified,  default to 'http://'
+-s3_store_host = 127.0.0.1:8080/v1.0/
++s3_store_host = stack01:8080/v1.0/
+ 
+ # User to authenticate against the S3 authentication service
+ s3_store_access_key = <20-char AWS access key>
+@@ -338,12 +339,15 @@ scrubber_datadir = /var/lib/glance/scrubber
+ image_cache_dir = /var/lib/glance/image-cache/
+ 
+ [keystone_authtoken]
+-auth_host = 127.0.0.1
++auth_host = stack01
+ auth_port = 35357
+ auth_protocol = http
+-admin_tenant_name = %SERVICE_TENANT_NAME%
+-admin_user = %SERVICE_USER%
+-admin_password = %SERVICE_PASSWORD%
++#admin_tenant_name = %SERVICE_TENANT_NAME%
++#admin_user = %SERVICE_USER%
++#admin_password = %SERVICE_PASSWORD%
++admin_tenant_name = service
++admin_user = glance
++admin_password = glance
+ 
+ [paste_deploy]
+ # Name of the paste configuration file that defines the available pipelines
+@@ -354,3 +358,5 @@ admin_password = %SERVICE_PASSWORD%
+ # [pipeline:glance-api-keystone], you would configure the flavor below
+ # as 'keystone'.
+ #flavor=
++flavor = keystone
++
+diff --git a/glance-registry.conf b/glance-registry.conf
+index 193a402..5d49d76 100644
+--- a/glance-registry.conf
++++ b/glance-registry.conf
+@@ -25,7 +25,8 @@ backlog = 4096
+ # SQLAlchemy connection string for the reference implementation
+ # registry server. Any valid SQLAlchemy connection string is fine.
+ # See: http://www.sqlalchemy.org/docs/05/reference/sqlalchemy/connections.html#sqlalchemy.create_engine
+-sql_connection = mysql://glance:glance@localhost/glance
++#sql_connection = mysql://glance:glance@stack01/glance
++sql_connection = mysql://glance:password@stack01/glance?charset=utf8
+ 
+ # Period in seconds after which SQLAlchemy should reestablish its connection
+ # to the database.
+@@ -72,12 +73,15 @@ limit_param_default = 25
+ #ca_file = /path/to/cafile
+ 
+ [keystone_authtoken]
+-auth_host = 127.0.0.1
++auth_host = stack01
+ auth_port = 35357
+ auth_protocol = http
+-admin_tenant_name = %SERVICE_TENANT_NAME%
+-admin_user = %SERVICE_USER%
+-admin_password = %SERVICE_PASSWORD%
++#admin_tenant_name = %SERVICE_TENANT_NAME%
++#admin_user = %SERVICE_USER%
++#admin_password = %SERVICE_PASSWORD%
++admin_tenant_name = service
++admin_user = glance
++admin_password = glance
+ 
+ [paste_deploy]
+ # Name of the paste configuration file that defines the available pipelines
+@@ -88,3 +92,5 @@ admin_password = %SERVICE_PASSWORD%
+ # [pipeline:glance-registry-keystone], you would configure the flavor below
+ # as 'keystone'.
+ #flavor=
++flavor = keystone
++
+```
+
+#### MySQLにGlanceのデータベースを構築
 
 ```
 MYSQL_PASS_GLANCE=password
@@ -624,8 +751,11 @@ mysql -u root -pnova -e "grant all privileges on glance.* to 'glance'@'%' identi
 mysql -u root -pnova -e "grant all privileges on glance.* to 'glance'@'localhost' identified by '$MYSQL_PASS_GLANCE';"
 mysql -u root -pnova -e "grant all privileges on glance.* to 'glance'@'$NOVA_CONTOLLER_HOSTNAME' identified by '$MYSQL_PASS_GLANCE';"
 sudo glance-manage db_sync
+```
 
+#### Glanceのサービス起動・自動起動設定。
 
+```
 chown glance:glance /var/log/glance -R
 for i in api registry
 do
@@ -637,26 +767,33 @@ do
 done
 ```
 
+#### サンプルのイメージをGlanceに登録してみる
+
+##### 環境変数設定
+
 ```
 export OS_USERNAME=admin
 export OS_PASSWORD=secrete
 export OS_TENANT_NAME=demo
 export OS_AUTH_URL=http://stack01:35357/v2.0/
+```
 
+##### イメージのダウンロード
 
+```
 mkdir -p /opt/virt/fedora17 ; cd /opt/virt/fedora17
-
 curl -O http://berrange.fedorapeople.org/images/2012-11-15/f17-x86_64-openstack-sda.qcow2
+```
 
-NotAuthenticated: 401 Unauthorized
-This server could not verify that you are authorized to access the document you requested. Either you supplied the wrong credentials (e.g., bad password), or your browser does not understand how to supply the credentials required.
- Authentication required  
- (HTTP 500)
+ダウンロードしたAMIイメージをGlanceに登録します。  
+拡張子から見るにqcow2形式のイメージみたいです。  
+どうやらAWSとかのクラウドコンピューティングインフラではqcow2でイメージを圧縮して管理して、  
+永続化データは抽象化したストレージをブロックストレージ（EBSに相当）として切り出してiSCSIで  
+仮想マシンのインスタンス（EC2相当）にアタッチするようです。  
+これならインスタンス稼働中にイメージやブロックストレージのスナップショットをとってバックアップを飛ばすといったことができますね。
 
-
+```
 glance image-create --name="f17-jeos" --is-public=true --disk-format=qcow2 --container-format=ovf < /opt/virt/fedora17/f17-x86_64-openstack-sda.qcow2
-
-
 
 +------------------+--------------------------------------+
 | Property         | Value                                |
@@ -708,21 +845,46 @@ glance image-create --name="f17-jeos" --is-public=true --disk-format=qcow2 --con
 +------------------+--------------------------------------+
 ```
 
+どこかで以下のようなメッセージを受け取ったのですが、どこで出てきたのか失念してしまったので、  
+とりあえず貼っておきます。無視してください。
+
+```
+NotAuthenticated: 401 Unauthorized
+This server could not verify that you are authorized to access the document you requested. Either you supplied the wrong credentials (e.g., bad password), or your browser does not understand how to supply the credentials required.
+ Authentication required  
+ (HTTP 500)
+```
 
 ### Volume Service(Cinder)のインストール
 
+AWSのEBSに相当するコンポーネントです。  
+以前のバージョンではNovaの中の一つになってましたが最近分離されました。
+
+ここではストレージにLVMを使用します。  
+事前に `cinder-volumes` の名前のボリュームグループが定義されているものとします。
+
 ```
-yum install openstack-cinder -y
+yum -y install openstack-cinder
+```
 
-cp -a /etc/cinder /etc/cinder_bak
+#### 設定
 
+```
+cd /etc/cinder/
+
+```
+
+#### MySQLにCinderのデータベース作成
+
+```
 MYSQL_PASS_CINDER=password
 NOVA_CONTOLLER_HOSTNAME=stack01
 mysql -uroot -pnova -e "drop database if exists cinder;"
 mysql -uroot -pnova -e "create database cinder character set utf8;"
-mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'%' identified by '$MYSQL_PASS_CINDER';"
-mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'localhost' identified by '$MYSQL_PASS_CINDER';"
-mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'$NOVA_CONTOLLER_HOSTNAME' identified by '$MYSQL_PASS_CINDER';"
+mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'%' identified by 'password';"
+mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'localhost' identified by 'password';"
+mysql -uroot -pnova -e "grant all privileges on cinder.* to 'cinder'@'stack01' identified by 'password';"
+mysql -uroot -pnova -e "flush privileges;"
 cinder-manage db sync
 
 2013-08-05 18:43:48     INFO [migrate.versioning.api] 0 -> 1... 
@@ -744,6 +906,15 @@ cinder-manage db sync
 2013-08-05 18:43:56     INFO [migrate.versioning.api] done
 2013-08-05 18:43:56     INFO [migrate.versioning.api] 8 -> 9... 
 2013-08-05 18:43:56     INFO [migrate.versioning.api] done
+```
+
+DBの権限設定間違ってしまったら以下のように直してください。
+
+```
+mysql -uroot -pnova -e "drop user cinder@'%';"
+mysql -uroot -pnova -e "drop user cinder@localhost;"
+mysql -uroot -pnova -e "drop user cinder@stack01;"
+mysql -uroot -pnova -e "flush privileges;"
 ```
 
 ```
@@ -1233,144 +1404,6 @@ awsは超便利版みたいな感じ。
 
 シリアルコンソールも使える  
 ![](img/serial.png)
-
-よく見たらボリューム作成できてない。
-cinderが死んだー。
-
-```
-2013-08-08 00:08:05     INFO [cinder.api.openstack.wsgi] http://stack01:8776/v1/439df062c81244a1af4f977f1450990c/volumes/detail returned with HTTP 200
-2013-08-08 00:08:05     INFO [cinder.api.openstack.wsgi] POST http://stack01:8776/v1/439df062c81244a1af4f977f1450990c/volumes
-2013-08-08 00:08:05    AUDIT [cinder.api.v1.volumes] Create volume of 50 GB
-2013-08-08 00:08:05    AUDIT [cinder.api.v1.volumes] vol={'volume_metadata': [], 'availability_zone': 'nova', 'terminated_at': None, 'updated_at': None, 'snapshot_id': None, 'ec2_id': None, 'mountpoint': None, 'deleted_at': None, 'id': 'a15469cc-b17e-4baa-82df-179c5ef0d7fb', 'size': 50, 'user_id': u'e9dafc41e0b747dd8947bb573a4a617a', 'attach_time': None, 'display_description': u'', 'project_id': u'439df062c81244a1af4f977f1450990c', 'launched_at': None, 'scheduled_at': None, 'status': 'creating', 'volume_type_id': None, 'deleted': False, 'provider_location': None, 'host': None, 'source_volid': None, 'provider_auth': None, 'display_name': u'volvol', 'instance_uuid': None, 'created_at': datetime.datetime(2013, 8, 7, 15, 8, 5, 552787), 'attach_status': 'detached', 'volume_type': None, 'metadata': {}}
-2013-08-08 00:08:05     INFO [cinder.api.openstack.wsgi] http://stack01:8776/v1/439df062c81244a1af4f977f1450990c/volumes returned with HTTP 200
-2013-08-08 00:08:05    ERROR [cinder.scheduler.manager] Failed to schedule_create_volume: No valid host was found. 
-2013-08-08 00:08:05     INFO [cinder.api.openstack.wsgi] GET http://stack01:8776/v1/439df062c81244a1af4f977f1450990c/volumes/detail
-2013-08-08 00:08:05    AUDIT [cinder.api.v1.volumes] vol=<cinder.db.sqlalchemy.models.Volume object at 0x37d6b10>
-2013-08-08 00:08:05    AUDIT [cinder.api.v1.volumes] vol=<cinder.db.sqlalchemy.models.Volume object at 0x37d6cd0>
-2013-08-08 00:08:05     INFO [cinder.api.openstack.wsgi] http://stack01:8776/v1/439df062c81244a1af4f977f1450990c/volumes/detail returned with HTTP 200
-```
-```
-[root@stack01 cinder]# for i in volume api scheduler; do   service openstack-cinder-$i restart; done
-openstack-cinder-volume を停止中:                          [失敗]
-openstack-cinder-volume を起動中:                          [  OK  ]
-openstack-cinder-api を停止中:                             [  OK  ]
-openstack-cinder-api を起動中:                             [  OK  ]
-openstack-cinder-scheduler を停止中:                       [  OK  ]
-openstack-cinder-scheduler を起動中:                       [  OK  ]
-```
-
-[OpenStack 2012.2で追加された新機能「Cinder」を使う - さくらのナレッジ](http://knowledge.sakura.ad.jp/tech/119/)
-
-> バックエンドストレージとしてLVMを使用する場合、volume_groupおよびvolume_name_template項目で使用するLVMのボリュームグループ名を指定しておく。デフォルトでは「cinder-volume」となっているが、別のものを指定することも可能だ。
-
-```
-volume_group = cinder-volumes
-```
-
-```
-[root@stack01 cinder]# vgscan
-  Reading all physical volumes.  This may take a while...
-  Found volume group "vg_wnoguchi" using metadata type lvm2
-```
-
-```
-vi /etc/cinder/cinder.conf
-volume_group = cinder-volumes
-↓
-volume_group = vg_wnoguchi
-```
-
-もいっちょ
-
-```
-[root@stack01 cinder]# for i in volume api scheduler; do   service openstack-cinder-$i restart; done
-openstack-cinder-volume を停止中:                          [失敗]
-openstack-cinder-volume を起動中:                          [  OK  ]
-openstack-cinder-api を停止中:                             [  OK  ]
-openstack-cinder-api を起動中:                             [  OK  ]
-openstack-cinder-scheduler を停止中:                       [  OK  ]
-openstack-cinder-scheduler を起動中:                       [  OK  ]
-[root@stack01 cinder]# for i in volume api scheduler; do   service openstack-cinder-$i restart; done
-openstack-cinder-volume を停止中:                          [  OK  ]
-openstack-cinder-volume を起動中:                          [  OK  ]
-openstack-cinder-api を停止中:                             [  OK  ]
-openstack-cinder-api を起動中:                             [  OK  ]
-openstack-cinder-scheduler を停止中:                       [  OK  ]
-openstack-cinder-scheduler を起動中:                       [  OK  ]
-```
-
-おー！
-
-```
-cinder create --display_name cinder_test 3
-+---------------------+--------------------------------------+
-|       Property      |                Value                 |
-+---------------------+--------------------------------------+
-|     attachments     |                  []                  |
-|  availability_zone  |                 nova                 |
-|       bootable      |                false                 |
-|      created_at     |      2013-08-07T15:30:21.480541      |
-| display_description |                 None                 |
-|     display_name    |             cinder_test              |
-|          id         | 402e25e0-eae5-4256-996c-00e7680bd2af |
-|       metadata      |                  {}                  |
-|         size        |                  3                   |
-|     snapshot_id     |                 None                 |
-|     source_volid    |                 None                 |
-|        status       |               creating               |
-|     volume_type     |                 None                 |
-+---------------------+--------------------------------------+
-```
-
-やっぱだめ、vgの空き領域ないって。そうだよね。
-
-```
-2013-08-08 00:33:30     INFO [cinder.api.openstack.wsgi] http://stack01:8776/v1/439df062c81244a1af4f977f1450990c/volumes returned with HTTP 20
-0
-2013-08-08 00:33:30  WARNING [cinder.scheduler.filters.capacity_filter] Insufficient free space for volume creation (requested / avail): 10/0.
-0
-2013-08-08 00:33:30    ERROR [cinder.scheduler.manager] Failed to schedule_create_volume: No valid host was found. 
-2013-08-08 00:33:30     INFO [cinder.api.openstack.wsgi] GET http://stack01:8776/v1/439df062c81244a1af4f977f1450990c/volumes/detail
-2013-08-08 00:33:30    AUDIT [cinder.api.v1.volumes] vol=<cinder.db.sqlalchemy.models.Volume object at 0x46dff10>
-2013-08-08 00:33:30     INFO [cinder.api.openstack.wsgi] http://stack01:8776/v1/439df062c81244a1af4f977f1450990c/volumes/detail returned with HTTP 200
-2013-08-08 00:33:49     INFO [cinder.volume.manager] Updating volume status
-
-
-[root@stack01 cinder]# vgscan
-  Reading all physical volumes.  This may take a while...
-  Found volume group "vg_wnoguchi" using metadata type lvm2
-[root@stack01 cinder]# vgdisplay
-  --- Volume group ---
-  VG Name               vg_wnoguchi
-  System ID             
-  Format                lvm2
-  Metadata Areas        1
-  Metadata Sequence No  3
-  VG Access             read/write
-  VG Status             resizable
-  MAX LV                0
-  Cur LV                2
-  Open LV               2
-  Max PV                0
-  Cur PV                1
-  Act PV                1
-  VG Size               931.02 GiB
-  PE Size               4.00 MiB
-  Total PE              238341
-  Alloc PE / Size       238341 / 931.02 GiB
-  Free  PE / Size       0 / 0   
-  VG UUID               j4qO0Y-WUg9-srNC-J7cD-GcXA-QWEc-DOr2oq
-```
-
-しかたないから縮める
-
-```   
-[root@stack01 cinder]# lvscan
-  ACTIVE            '/dev/vg_wnoguchi/lv_root' [927.14 GiB] inherit
-  ACTIVE            '/dev/vg_wnoguchi/lv_swap' [3.88 GiB] inherit
-```
-
-むり、時間ない。あとで。
 
 ## 参考サイト
 
