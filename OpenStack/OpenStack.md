@@ -1569,6 +1569,12 @@ documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)
 - [これからはじめるOpenStackリンク集 | 外道父の匠](http://blog.father.gedow.net/2013/02/19/openstack-links/)
 - [オープンソースに関するドキュメント — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/index.html)
 
+### DevStack
+
+- [openstack-dev/devstack](https://github.com/openstack-dev/devstack)
+- [DevStack - Deploying OpenStack for Developers](http://devstack.org/)
+- [「オープンソース」を使ってみよう (第23回 DevStackでラクラク導入！ OpenStackを使ってみよう編)](http://www.ospn.jp/press/20120828no27-useit-oss.html)
+
 ### その他
 
 - [OpenStack の利用](http://www.slideshare.net/yosshy/openstack-14884093)
