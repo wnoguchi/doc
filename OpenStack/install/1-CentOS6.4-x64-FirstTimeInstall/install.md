@@ -301,7 +301,7 @@ git形式のパッチなのでp0ではなくp1で当ててください。
 ```
 cd /etc/keystone/
 パッチファイルをGitHubからダウンロード
-wget https://raw.github.com/wnoguchi/doc/master/OpenStack/config/keystone-config.patch
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/install/1-CentOS6.4-x64-FirstTimeInstall/config/keystone-config.patch
 正常にパッチがあたるかdry-runで確認
 patch -p1 --dry-run < keystone-config.patch
 うまくいけばパッチ適用。
@@ -572,7 +572,7 @@ yum -y install openstack-glance
 ```
 cd /etc/glance/
 パッチファイルをGitHubからダウンロード
-wget https://raw.github.com/wnoguchi/doc/master/OpenStack/config/glance-config.patch
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/install/1-CentOS6.4-x64-FirstTimeInstall/config/glance-config.patch
 正常にパッチがあたるかdry-runで確認
 patch -p1 --dry-run < glance-config.patch
 うまくいけばパッチ適用。
@@ -847,7 +847,7 @@ ERROR: Malformed request url
 ```
 cd /etc/cinder/
 パッチファイルをGitHubからダウンロード
-wget https://raw.github.com/wnoguchi/doc/master/OpenStack/config/cinder-config-hagi.patch
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/install/1-CentOS6.4-x64-FirstTimeInstall/config/cinder-config-hagi.patch
 正常にパッチがあたるかdry-runで確認
 patch -p1 --dry-run < cinder-config-hagi.patch
 うまくいけばパッチ適用。
@@ -1093,7 +1093,7 @@ yum install -y openstack-nova
 ```
 cd /etc/nova/
 パッチファイルをGitHubからダウンロード
-wget https://raw.github.com/wnoguchi/doc/master/OpenStack/config/nova-config.patch
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/install/1-CentOS6.4-x64-FirstTimeInstall/config/nova-config.patch
 正常にパッチがあたるかdry-runで確認
 patch -p1 --dry-run < nova-config.patch
 うまくいけばパッチ適用。
