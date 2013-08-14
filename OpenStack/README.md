@@ -47,6 +47,12 @@ Amazon s3的なやつ。
 - **ネットワーク管理コンポーネントのQuantumはNeutronに名前が変わった。**  
 [Fwd: [Openstack] Quantum is changing its name to... - Google グループ](https://groups.google.com/forum/#!topic/openstack-ja/ScQA_eLd2Gw)
 
+## インストール
+
+私のOpenStackインストールの記録です。
+
+- [初めてのOpenStackインストールの記録](install/1-CentOS6.4-x64-FirstTimeInstall/install.md)
+
 ## 参考サイト
 
 ### インストール関連
