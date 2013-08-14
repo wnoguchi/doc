@@ -37,14 +37,14 @@ echo SERVICE_PASSWORD=password >> localrc
 echo SERVICE_TOKEN=tokentoken >> localrc
 ```
 
-初期化。
+初期化します。
 
 ```
 sudo sh openstack-kickstart.sh
 ```
 
-実行。  
-一回目はものすごい時間かかるので
+実行します。  
+一回目はものすごい時間かかるのでコーヒー飲んだり別のことをしています。
 
 ```
 cd devstack
