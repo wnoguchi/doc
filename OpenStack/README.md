@@ -51,7 +51,8 @@ Amazon s3的なやつ。
 
 私のOpenStackインストールの記録です。
 
-- [初めてのOpenStackインストールの記録](install/1-CentOS6.4-x64-FirstTimeInstall/install.md)
+1. [初めてのOpenStackインストールの記録](install/1-CentOS6.4-x64-FirstTimeInstall/install.md)
+1. [1つの仮想マシンの中にDevStackでオールインワンなOpenStack環境を作ってみる](install/2-OpenStackOnVM/install.md)
 
 ## 参考サイト
 
