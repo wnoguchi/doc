@@ -2,6 +2,13 @@
 
 VyattaとかAsteriskとか入れたいねん。
 
+## 概要
+
+最近コードネームが Quantum から Neutron に変わりました。  
+ご注意を。
+
+## やってみる
+
 ## 参考サイト
 
 - [OpenStack の Quantum + Open vSwitch でVLAN構成を試してみた - Qiita [キータ]](http://qiita.com/m_doi/items/f561894a1f83de40e7dd)

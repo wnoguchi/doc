@@ -44,6 +44,8 @@ Amazon s3的なやつ。
 
 ## 近況
 
+![](img/trends.png)
+
 - **ネットワーク管理コンポーネントのQuantumはNeutronに名前が変わった。**  
 [Fwd: [Openstack] Quantum is changing its name to... - Google グループ](https://groups.google.com/forum/#!topic/openstack-ja/ScQA_eLd2Gw)
 
@@ -62,6 +64,9 @@ Amazon s3的なやつ。
 - [3. Openstackインストール手順(Grizzly)CentOS6.4(パッケージ)編 —
 オープンソースに関するドキュメント 1.1
 documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)
+- [1. Openstackインストール手順(Grizzly)Ubuntu13.04(パッケージ)編 — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_ubuntu1304_apt/index.html)
+- [4. Openstackコマンド関連(Grizzly) — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_com_grizzly/index.html)
+- [1. OpenStackFAQ(Grizzly) — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_faq_grizzly/index.html)
 - [さくらの専用サーバとOpenStackで作るプライベートクラウド | SourceForge.JP Magazine](http://sourceforge.jp/magazine/12/09/18/1126211)  
 ちょっと記事が古めで長くて眠くなりそう。  
 ただ、データセンター使ってプライベとクラウド作るのでとても参考になりそう。
