@@ -93,7 +93,8 @@ documentation](http://oss.fulltrust.co.jp/doc/openstack_grizzly_centos64_yum/)
 - [DevStack - Deploying OpenStack for Developers](http://devstack.org/)
 - [「オープンソース」を使ってみよう (第23回 DevStackでラクラク導入！ OpenStackを使ってみよう編)](http://www.ospn.jp/press/20120828no27-useit-oss.html)
 
-### その他
+### その他slideshareとか
 
 - [OpenStack の利用](http://www.slideshare.net/yosshy/openstack-14884093)
 - [OpenStack勉強会](http://www.slideshare.net/obara13/open-stack-16166193)
+- [OSC2012 Tokyo Fall OpenStack Essex Multinode Demo](http://www.slideshare.net/irix_jp/osc2012-tokyofall-josugopenstackdemo2v2)
