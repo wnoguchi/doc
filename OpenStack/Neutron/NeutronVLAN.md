@@ -351,6 +351,10 @@ chkconfig quantum-dhcp-agent on
 
 長い・・・。あとで・・・。
 
+```
+cd /etc/nova/
+```
+
 ## 参考サイト
 
 - [OpenStackの仮想ネットワーク管理機能「Quantum」の基本的な設定 - さくらのナレッジ](http://knowledge.sakura.ad.jp/tech/195/)
