@@ -248,14 +248,13 @@ Configuration updates complete!
 
 `/etc/quantum/plugins/linuxbridge/linuxbridge_conf.ini` を編集する。
 
-```
-```
+**see patch.**
 
 #### sudoersの設定
 
 ```
-visudo
-quantum ALL=(ALL)       ALL
+# visudo
+quantum ALL=(ALL) NOPASSWD:ALL
 ```
 
 #### カーネルパラメータの設定
@@ -349,10 +348,53 @@ chkconfig quantum-dhcp-agent on
 
 ### 計算機ノード Nova 側設定
 
-長い・・・。あとで・・・。
-
 ```
 cd /etc/nova/
+vi nova.conf
+```
+
+```
+network_api_class = nova.network.quantumv2.api.API
+quantum_admin_username = quantum
+quantum_admin_password = password
+quantum_admin_auth_url = http://stack01:35357/v2.0/
+quantum_auth_strategy = Keystone
+quantum_admin_tenant_name = demo
+quantum_url = http://stack01:9696/
+libvirt_vif_driver = nova.virt.libvirt.vif.QuantumLinuxBridgeVIFDriver
+```
+
+#### sudoersの設定
+
+オールインワン構成なら先ほど設定したので大丈夫です。
+
+```
+# visudo
+quantum ALL=(ALL) NOPASSWD:ALL
+```
+
+#### KVMの設定
+
+`/etc/libvirt/qemu.conf` を編集します。
+
+```
+cgroup_device_acl = [
+    "/dev/null", "/dev/full", "/dev/zero",
+    "/dev/random", "/dev/urandom",
+    "/dev/ptmx", "/dev/kvm", "/dev/kqemu",
+    "/dev/rtc","/dev/hpet", "/dev/net/tun"
+]
+```
+
+#### 起動設定
+
+```
+service openstack-nova-compute restart &&
+service libvirtd restart &&
+service quantum-linuxbridge-agent start &&
+chkconfig openstack-nova-compute on &&
+chkconfig libvirtd on &&
+chkconfig quantum-linuxbridge-agent on
 ```
 
 ## 参考サイト
