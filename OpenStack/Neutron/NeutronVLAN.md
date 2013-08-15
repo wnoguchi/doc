@@ -60,7 +60,7 @@ keystone service-create --name=neutron --type=network --description="Neutron Net
 +-------------+----------------------------------+
 ```
 
-### リージョン RegionOne で登録。
+### リージョン RegionOne で登録
 
 #### サービスID取得
 
