@@ -4,6 +4,9 @@ VyattaとかAsteriskとか入れたいねん。
 
 ## 概要
 
+**このエントリは失敗しています。  
+ムダに長いので読まないほうがいいです。**
+
 最近コードネームが Quantum から Neutron に変わりました。  
 ご注意を。
 
@@ -409,6 +412,8 @@ TENAND_ID=45a9e17a91be42d48a7c58b202172f69
 quantum net-create --tenant-id=$TENANT_ID net1 --shared --provider:network_type flat --provider:physical_network physnet1
 Invalid input for operation: Unknown provider:physical_network physnet1.
 ```
+
+## Conclusion
 
 現状の自分のスキルでは続行は無理と判断。  
 UbuntuとDevStackで構築しなおしてみる。
