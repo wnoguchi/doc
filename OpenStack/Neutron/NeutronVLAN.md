@@ -7,7 +7,14 @@ VyattaとかAsteriskとか入れたいねん。
 最近コードネームが Quantum から Neutron に変わりました。  
 ご注意を。
 
-## やってみる
+### 構成要素
+
+- Quantum Server
+- L3 Agent
+- DHCP Agent
+- Plugin Agent
+
+## Neutronのインストール
 
 ```
 yum -y install openstack-quantum
@@ -96,8 +103,83 @@ keystone endpoint-create --region $REGION --service_id=$SERVICE_ID --publicurl "
 +----------------------------------+----------+--------------+---------------------------+
 ```
 
+## Neutronの設定
+
+### 制御ノードのデータベース設定
+
+以下のコマンドを実行する。  
+実行すると設定ファイルも変更されるのでgit diffとかしてみて変更内容確認してみよう。  
+rootで実行する。
+
+ここでやっていることは
+
+- ネットワークプラグインに LinuxBridge を使用するように指定。  
+CentOSだとOpen vSwitchに対応していない。  
+インストール自体はできるけどなんかうまく動かない。
+- 内部ネットワークとの接続を行う、VLANトランクポートとして設定するNICを eth0 で指定している。
+- 設定ファイルもこっちでよろしく変えちゃってよろしいか？
+
+```
+[root@stack01 quantum]# quantum-server-setup -q password
+Please select a plugin from: linuxbridge openvswitch
+Choice:
+linuxbridge
+Quantum plugin: linuxbridge
+Plugin: linuxbridge => Database: quantum_linux_bridge
+Please enter the password for the 'root' MySQL user: 
+Verified connectivity to MySQL.
+Please enter network device for VLAN trunking:
+eth0
+Would you like to update the nova configuration files? (y/n): 
+y
+Configuration updates complete!
+```
+
+CentOS6.3系ではネットワークネームスペースがサポートされていないので
+
+```
+allow_overlapping_ips = False
+```
+
+とする必要があるらしんですが、6.4系では有効になってるのかなっと思ったら
+
+[CentOS 6.4 で Linux Network Namespace (netns) を使う | CUBE SUGAR STORAGE](http://momijiame.tumblr.com/post/57789158893/centos-6-4-linux-network-namespace-netns)
+
+そのままじゃだめらしい。  
+OpenStackのアーキテクチャに相当慣れてからじゃないとCentOSを選定するのは難しそうだってことは分かった。  
+とりあえずQuantumの使用感になれてみようか。  
+あとでOpenStackをUbuntuで再構築してみよう。
+
+#### RabbitMQの設定
+
+とりあえず以下のメッセージングサービスRabbitMQの設定を有効にする。
+
+```
+rpc_backend = quantum.openstack.common.rpc.impl_kombu
+rabbit_host = stack01
+rabbit_port = 5672
+rabbit_userid = guest
+rabbit_password = guest
+rabbit_virtual_host = /
+```
+
+#### api-paste.iniの設定
+
+`[filter:authtoken]` のセクションに以下の内容を追加します。
+
+```
+auth_host = stack01
+auth_port = 35357
+auth_protocol = http
+admin_tenant_name = demo
+admin_user = admin
+admin_password = secrete
+```
+
+
 ## 参考サイト
 
 - [OpenStackの仮想ネットワーク管理機能「Quantum」の基本的な設定 - さくらのナレッジ](http://knowledge.sakura.ad.jp/tech/195/)
 - [OpenStack の Quantum + Open vSwitch でVLAN構成を試してみた - Qiita [キータ]](http://qiita.com/m_doi/items/f561894a1f83de40e7dd)
 - [OpenStack の Quantum + Linux Bridge でVLAN構成を試してみた - Qiita [キータ]](http://qiita.com/m_doi/items/f3439b78a02b20f1f4a0)
+[CentOS 6.4 で Linux Network Namespace (netns) を使う | CUBE SUGAR STORAGE](http://momijiame.tumblr.com/post/57789158893/centos-6-4-linux-network-namespace-netns)
