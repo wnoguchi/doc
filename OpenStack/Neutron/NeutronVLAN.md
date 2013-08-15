@@ -430,6 +430,5 @@ UbuntuとDevStackで構築しなおしてみる。
 - [OpenStack の Quantum + Open vSwitch でVLAN構成を試してみた - Qiita [キータ]](http://qiita.com/m_doi/items/f561894a1f83de40e7dd)
 - [OpenStack の Quantum + Linux Bridge でVLAN構成を試してみた - Qiita [キータ]](http://qiita.com/m_doi/items/f3439b78a02b20f1f4a0)
 - [CentOS 6.4 で Linux Network Namespace (netns) を使う | CUBE SUGAR STORAGE](http://momijiame.tumblr.com/post/57789158893/centos-6-4-linux-network-namespace-netns)
-[OpenStackの仮想ネットワーク管理機能「Quantum」の基本的な設定 | SourceForge.JP Magazine](http://sourceforge.jp/magazine/13/04/11/080000)
-
+- [OpenStackの仮想ネットワーク管理機能「Quantum」の基本的な設定 | SourceForge.JP Magazine](http://sourceforge.jp/magazine/13/04/11/080000)
 - [Virtual Network Service (Quantum)のインストール — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_folsom_ubuntu1204_apt/quantum_install.html)
