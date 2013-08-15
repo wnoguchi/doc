@@ -397,9 +397,34 @@ chkconfig libvirtd on &&
 chkconfig quantum-linuxbridge-agent on
 ```
 
+## 運用
+
+制御ノード上で `stack` ユーザーになって行います。  
+`keystonerc` は読み込みましょう。
+
+### ネットワークの作成
+
+```
+TENAND_ID=45a9e17a91be42d48a7c58b202172f69
+quantum net-create --tenant-id=$TENANT_ID net1 --shared --provider:network_type flat --provider:physical_network physnet1
+Invalid input for operation: Unknown provider:physical_network physnet1.
+```
+
+現状の自分のスキルでは続行は無理と判断。  
+UbuntuとDevStackで構築しなおしてみる。
+
+- Neutronになってコマンド体系がかなり変わってしまった
+- LinuxBridgeは流行らない（出てくる記事はOpen vSwitchのものばっかり）
+- そもそもCentOSベースで開発されていない（Ubuntuがベース）
+
+疲れた・・・。
+
 ## 参考サイト
 
 - [OpenStackの仮想ネットワーク管理機能「Quantum」の基本的な設定 - さくらのナレッジ](http://knowledge.sakura.ad.jp/tech/195/)
 - [OpenStack の Quantum + Open vSwitch でVLAN構成を試してみた - Qiita [キータ]](http://qiita.com/m_doi/items/f561894a1f83de40e7dd)
 - [OpenStack の Quantum + Linux Bridge でVLAN構成を試してみた - Qiita [キータ]](http://qiita.com/m_doi/items/f3439b78a02b20f1f4a0)
-[CentOS 6.4 で Linux Network Namespace (netns) を使う | CUBE SUGAR STORAGE](http://momijiame.tumblr.com/post/57789158893/centos-6-4-linux-network-namespace-netns)
+- [CentOS 6.4 で Linux Network Namespace (netns) を使う | CUBE SUGAR STORAGE](http://momijiame.tumblr.com/post/57789158893/centos-6-4-linux-network-namespace-netns)
+[OpenStackの仮想ネットワーク管理機能「Quantum」の基本的な設定 | SourceForge.JP Magazine](http://sourceforge.jp/magazine/13/04/11/080000)
+
+- [Virtual Network Service (Quantum)のインストール — オープンソースに関するドキュメント 1.1 documentation](http://oss.fulltrust.co.jp/doc/openstack_folsom_ubuntu1204_apt/quantum_install.html)
