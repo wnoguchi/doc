@@ -38,7 +38,8 @@ Compute Nodesに入れるのかな。
 
 他に必要なのは
 
-- Neutron（旧：Quantum）
+- Neutron（旧：Quantum）  
+[ネットワークコンポーネント](Neutron/Neutron.md) 。
 - Swift  
 Amazon s3的なやつ。
 

@@ -60,7 +60,7 @@ keystone service-create --name=neutron --type=network --description="Neutron Net
 +-------------+----------------------------------+
 ```
 
-### リージョン `RegionOne` で登録。
+### リージョン RegionOne で登録。
 
 #### サービスID取得
 
@@ -105,7 +105,7 @@ keystone endpoint-create --region $REGION --service_id=$SERVICE_ID --publicurl "
 
 ## Neutronの設定
 
-### 制御ノードのデータベース設定
+### 制御ノード側
 
 以下のコマンドを実行する。  
 実行すると設定ファイルも変更されるのでgit diffとかしてみて変更内容確認してみよう。  
@@ -176,6 +176,180 @@ admin_user = admin
 admin_password = secrete
 ```
 
+例によって例のごとくパッチファイル作った。
+
+```
+cd /etc/quantum
+
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/Neutron/config/quantum-server-setup.patch
+patch -p1 --dry-run < quantum-server-setup.patch
+patch -p1 < quantum-server-setup.patch
+
+wget https://raw.github.com/wnoguchi/doc/master/OpenStack/Neutron/config/quantum-config.patch
+patch -p1 --dry-run < quantum-config.patch
+patch -p1 < quantum-config.patch
+```
+
+#### Neutronスタート
+
+```
+service quantum-server start
+chkconfig quantum-server on
+```
+
+### ネットワークノード側
+
+ネットワークノードでは上記制御ノードと同じ設定に加えて、
+
+- L3 Agentの設定
+- DHCP Agentの設定
+- プラグインの設定
+- sudoersファイルの設定
+- ブリッジ関連のカーネルパラメータ変更
+- dnsmasqパッケージのバージョン確認とアップデート
+
+をやらないといけないらしい。。。
+
+`~/keystonerc` を予め読み込んであるものと仮定します。
+
+```
+source /home/stack/keystonerc
+```
+
+#### L3 Agentの設定
+
+```
+[root@stack01 ~]# quantum-l3-setup
+Please select a plugin from: linuxbridge openvswitch
+Choice:
+linuxbridge
+Quantum plugin: linuxbridge
+Please enter the Quantum hostname:
+stack01
+Configuration updates complete!
+```
+
+#### DHCP Agentの設定
+
+```
+[root@stack01 ~]# quantum-dhcp-setup
+Please select a plugin from: linuxbridge openvswitch
+Choice:
+linuxbridge
+Quantum plugin: linuxbridge
+Please enter the Quantum hostname:
+stack01
+Configuration updates complete!
+```
+
+ここまでで `/etc/quantum/` 以下が設定されているので確認しといたほうがいいです。
+
+#### Plugin Agent: linuxbridge-agentの設定
+
+`/etc/quantum/plugins/linuxbridge/linuxbridge_conf.ini` を編集する。
+
+```
+```
+
+#### sudoersの設定
+
+```
+visudo
+quantum ALL=(ALL)       ALL
+```
+
+#### カーネルパラメータの設定
+
+ブリッジインタフェース通るときにiptablesのフィルタがかからないようにする。  
+0になっているか確認する。
+
+```
+cat /proc/sys/net/bridge/bridge-nf-call-iptables
+1
+cat /proc/sys/net/bridge/bridge-nf-call-ip6tables
+1
+cat /proc/sys/net/bridge/bridge-nf-call-arptables
+1
+```
+
+だめみたい。0にする。
+
+```
+echo 0 > /proc/sys/net/bridge/bridge-nf-call-iptables
+echo 0 > /proc/sys/net/bridge/bridge-nf-call-ip6tables
+echo 0 > /proc/sys/net/bridge/bridge-nf-call-arptables
+```
+
+今度はどうだ。
+
+```
+[root@stack01 quantum]# cat /proc/sys/net/bridge/bridge-nf-call-iptables
+0
+[root@stack01 quantum]# cat /proc/sys/net/bridge/bridge-nf-call-ip6tables
+0
+[root@stack01 quantum]# cat /proc/sys/net/bridge/bridge-nf-call-arptables
+0
+```
+
+OK。  
+次は永続化。
+
+```
+# vi /etc/rc.local
+echo 0 > /proc/sys/net/bridge/bridge-nf-call-iptables
+echo 0 > /proc/sys/net/bridge/bridge-nf-call-ip6tables
+echo 0 > /proc/sys/net/bridge/bridge-nf-call-arptables
+```
+
+> なお、これらのデフォルト値は/etc/sysctl.conf内に記述されているのだが、Red Hat Enterprise Linux 6.3（およびその互換環境）ではbridge-nf-call-iptablesおよびbridge-nf-call-ip6tables、bridge-nf-call-arptablesの値が正しく反映されないというバグが確認されている。もし/etc/sysctl.conf内でこれらの値を0に設定しているにも関わらずデフォルト値が1になっている場合は、下記を/etc/rc.localファイルに記述しておくことで対処できるとのことだ。
+
+##### IPフォワーディング有効かどうか
+
+1ならOK。
+
+```
+cat /proc/sys/net/ipv4/ip_forward
+1
+```
+
+#### dnsmasqのアップデート
+
+```
+rpm -q dnsmasq
+dnsmasq-2.48-13.el6.x86_64
+```
+
+> これらに加え、DHCP Agentが利用するdnsmasqパッケージのバージョンの確認も必要だ。記事作成時点でCentOS 6.3で提供されているdnsmasqのバージョンは2.48なのだが、DHCP Agentはdnsmasq 2.59以上を必要とする。そのため、より新しいバージョンのdnsmasqを別途インストールする必要がある。今回は、DAGリポジトリで提供されているdnsmasqパッケージをインストールすることにする。DAGリポジトリ（x86_64向け）もしくはDAGリポジトリ（x86向け）からdnsmasqパッケージをダウンロードしてインストールしておこう。たとえばdnsmasq-2.63-1.el6.rfx.x86_64.rpmというパッケージをインストールする場合、以下のようにすれば良い。
+
+バージョン古いそうです。  
+やること多すぎ・・・。。。。  
+アップデートします。
+
+```
+rpm -Uvh http://apt.sw.be/redhat/el6/en/x86_64/extras/RPMS/dnsmasq-2.65-1.el6.rfx.x86_64.rpm
+```
+
+確認。
+
+```
+rpm -q dnsmasq
+dnsmasq-2.65-1.el6.rfx.x86_64
+```
+
+うん、汚染されちゃったけどOKですね。
+
+```
+service quantum-linuxbridge-agent start &&
+service quantum-l3-agent start &&
+service quantum-dhcp-agent start &&
+chkconfig quantum-linuxbridge-agent on &&
+chkconfig quantum-l3-agent on &&
+chkconfig quantum-dhcp-agent on
+```
+
+### 計算機ノード Nova 側設定
+
+長い・・・。あとで・・・。
 
 ## 参考サイト
 
