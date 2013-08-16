@@ -20,7 +20,7 @@ NIC二枚差し推奨らしい。実験用ならNIC一枚でも動きます。
 Compute Nodesは実際に仮想マシンを稼働させるノード。計算機リソースとしてのノードなのでディスクは30GBと少なめ。  
 ただメモリは32GB以上推奨。  
 仮想化対応必須。KVMとかVMwareとかXenとか。  
-うちはKVMだね。
+うちはKVMですね。
 
 どのみちストレージが必要なのでCinderをどっかで稼働させないといけない。  
 Compute Nodesに入れるのかな。  
@@ -59,6 +59,7 @@ Amazon s3的なやつ。
 
 1. [初めてのOpenStackインストールの記録](install/1-CentOS6.4-x64-FirstTimeInstall/install.md)
 1. [1つの仮想マシンの中にDevStackでオールインワンなOpenStack環境を作ってみる](install/2-OpenStackOnVM/install.md)
+1. [UbuntuにAllInOne構成でOpenStackをインストール(Grizzly)](install/3-UbuntuAllInOne/install.md)
 
 ## 参考サイト
 
