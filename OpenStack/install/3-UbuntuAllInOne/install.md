@@ -472,7 +472,7 @@ Added interface 121b6830-c1da-460a-b8a3-bb01e524e45e to router 72a879bd-3f70-4e9
 
 結線されました。
 
-![](img/network_state.png)
+![](img/network_state2.png)
 
 インスタンス起動したら変なサブネットに結びついちゃった。
 
@@ -520,6 +520,8 @@ xxxxxxxxxx
 ```
 
 ちょっとノイズになりそうな定義が増えすぎたので片っ端から削除する。
+
+![](img/network_state3.png)
 
 ```
 stack@wstack:~/devstack$ neutron subnet-update 4287b9bb-440e-4ca7-90ea-c7119d69bb7a  --gateway 10.0.10.1
@@ -652,6 +654,8 @@ stack@wstack:~/devstack$ sudo ovs-vsctl show
 
 
 ```
+
+。。。。。わからない。
 
 ## 参考リンク
 
