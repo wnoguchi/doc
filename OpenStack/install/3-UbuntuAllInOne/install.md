@@ -154,8 +154,120 @@ DevStackはタイミングの問題でエラーになることが多々あるか
 
 これはやばいですね・・・。
 
+### Neutron系が意味不明
+
+**わからなくなったら `neutron help` 。**
+
+[quantum · irixjp/openstack-study-9 Wiki](https://github.com/irixjp/openstack-study-9/wiki/quantum)
+
+とりあえずNeutronのHorizonインタフェースは豪華だけど微妙に不完全らしいからコマンド体系を自分で
+補完しないといけないっぽい。
+
+```
+stack@wstack:~/devstack$ quantum net-list
++--------------------------------------+---------+----------------------------------------------------+
+| id                                   | name    | subnets                                            |
++--------------------------------------+---------+----------------------------------------------------+
+| 7e842f83-2713-4bba-8e98-2d62b9221667 | public  | 1dd975a1-9c80-4fcc-9478-2d2a4415cd08               |
+| a18fea4e-a6e7-43b6-a24c-73858a7b7464 | private | c30bd4f0-a232-459b-98b5-d78fbc08941a 10.11.12.0/24 |
++--------------------------------------+---------+----------------------------------------------------+
+
+stack@wstack:~/devstack$ quantum net-create mynet1
+Created a new network:
++-----------------+--------------------------------------+
+| Field           | Value                                |
++-----------------+--------------------------------------+
+| admin_state_up  | True                                 |
+| id              | 45efb95b-448d-4e85-a72c-5956b4ca8435 |
+| name            | mynet1                               |
+| router:external | False                                |
+| shared          | False                                |
+| status          | ACTIVE                               |
+| subnets         |                                      |
+| tenant_id       | 135c9a897878463f988c3ac68516b759     |
++-----------------+--------------------------------------+
+
+stack@wstack:~/devstack$ quantum net-list
++--------------------------------------+---------+----------------------------------------------------+
+| id                                   | name    | subnets                                            |
++--------------------------------------+---------+----------------------------------------------------+
+| 45efb95b-448d-4e85-a72c-5956b4ca8435 | mynet1  |                                                    |
+| 7e842f83-2713-4bba-8e98-2d62b9221667 | public  | 1dd975a1-9c80-4fcc-9478-2d2a4415cd08               |
+| a18fea4e-a6e7-43b6-a24c-73858a7b7464 | private | c30bd4f0-a232-459b-98b5-d78fbc08941a 10.11.12.0/24 |
++--------------------------------------+---------+----------------------------------------------------+
+
+stack@wstack:~/devstack$ quantum subnet-create --ip-version 4 --gateway 172.26.0.254 45efb95b-448d-4e85-a72c-5956b4ca8435 172.26.0.0/24
+Created a new subnet:
++------------------+------------------------------------------------+
+| Field            | Value                                          |
++------------------+------------------------------------------------+
+| allocation_pools | {"start": "172.26.0.1", "end": "172.26.0.253"} |
+| cidr             | 172.26.0.0/24                                  |
+| dns_nameservers  |                                                |
+| enable_dhcp      | True                                           |
+| gateway_ip       | 172.26.0.254                                   |
+| host_routes      |                                                |
+| id               | 5fe01e0e-de3b-4fac-ac13-c6d0bc56684a           |
+| ip_version       | 4                                              |
+| name             |                                                |
+| network_id       | 45efb95b-448d-4e85-a72c-5956b4ca8435           |
+| tenant_id        | 135c9a897878463f988c3ac68516b759               |
++------------------+------------------------------------------------+
+
+stack@wstack:~/devstack$ quantum router-create myrouter1
+Created a new router:
++-----------------------+--------------------------------------+
+| Field                 | Value                                |
++-----------------------+--------------------------------------+
+| admin_state_up        | True                                 |
+| external_gateway_info |                                      |
+| id                    | 43274dec-30a7-485c-ba9b-4e27175970f2 |
+| name                  | myrouter1                            |
+| status                | ACTIVE                               |
+| tenant_id             | 135c9a897878463f988c3ac68516b759     |
++-----------------------+--------------------------------------+
+
+
+stack@wstack:~/devstack$ sudo ip netns exec qrouter-43274dec-30a7-485c-ba9b-4e27175970f2 route -n
+Cannot open network namespace: No such file or directory
+stack@wstack:~/devstack$ ip netns list
+qrouter-cc84daca-df5b-4521-a477-01919ff396ef
+qdhcp-a18fea4e-a6e7-43b6-a24c-73858a7b7464
+qrouter-7be8690e-8a61-48c2-926f-f87a90a55ee7
+qdhcp-b3ffd65b-dc25-4d9d-a729-1342122cfcf4
+
+
+
+```
+
+[Question #206604 : Questions : neutron](https://answers.launchpad.net/neutron/+question/206604)
+
+```
+stack@wstack:~/devstack$ quantum router-list
++--------------------------------------+-----------+--------------------------------------------------------+
+| id                                   | name      | external_gateway_info                                  |
++--------------------------------------+-----------+--------------------------------------------------------+
+| 43274dec-30a7-485c-ba9b-4e27175970f2 | myrouter1 | null                                                   |
+| cc84daca-df5b-4521-a477-01919ff396ef | router1   | {"network_id": "7e842f83-2713-4bba-8e98-2d62b9221667"} |
++--------------------------------------+-----------+--------------------------------------------------------+
+```
+
+
+増殖する仕様
+
+qrouter-8c006c82-abc3-46b4-967a-4c310cd4ff3e
+qdhcp-7f9833b2-3764-4352-b0ad-5a47ff6ba20b
+
+
+quantum router-interface-add 8c006c82-abc3-46b4-967a-4c310cd4ff3e 7f9833b2-3764-4352-b0ad-5a47ff6ba20b
+
 ## 参考リンク
 
 - [Single Machine Guide - DevStack](http://devstack.org/guides/single-machine.html)
 - [openstack-dev/devstack](https://github.com/openstack-dev/devstack/tree/stable/grizzly)
 - [「オープンソース」を使ってみよう (第23回 DevStackでラクラク導入！ OpenStackを使ってみよう編)](http://www.ospn.jp/press/20120828no27-useit-oss.html)
+
+### Neutron系
+
+[quantum · irixjp/openstack-study-9 Wiki](https://github.com/irixjp/openstack-study-9/wiki/quantum)
+[Running Virtual Machine Instances - OpenStack Installation Guide for Red Hat Enterprise Linux, CentOS, and Fedora  - master](http://docs.openstack.org/trunk/openstack-compute/install/yum/content/running-an-instance.html)
