@@ -373,6 +373,286 @@ PING 192.168.0.100 (192.168.0.100) 56(84) bytes of data.
 pingとぶ
 
 
+```
+quantum subnet-create --ip-version 4 --gateway 172.16.0.1 fd4e5c96-2333-4832-b383-24fedc2765bf 172.26.0.0/24
+
+
+
+
+stack@wstack:~/devstack$ quantum help | grep show
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  --debug               show tracebacks on errors
+  agent-show                     Show information of a given agent.
+  ext-show                       Show information of a given resource.
+  floatingip-show                Show information of a given floating ip.
+  lb-healthmonitor-show          Show information of a given healthmonitor.
+  lb-member-show                 Show information of a given member.
+  lb-pool-show                   Show information of a given pool.
+  lb-vip-show                    Show information of a given vip.
+  net-gateway-show               Show information of a given network gateway.
+  net-show                       Show information of a given network.
+  port-show                      Show information of a given port.
+  queue-show                     Show information of a given queue.
+  quota-show                     Show quotas of a given tenant
+  router-show                    Show information of a given router.
+  security-group-rule-show       Show information of a given security group rule.
+  security-group-show            Show information of a given security group.
+  subnet-show                    Show information of a given subnet.
+
+
+
+stack@wstack:~/devstack$ quantum net-show private
++-----------------+--------------------------------------+
+| Field           | Value                                |
++-----------------+--------------------------------------+
+| admin_state_up  | True                                 |
+| id              | da940418-988a-484a-a32a-eabad1a62cc4 |
+| name            | private                              |
+| router:external | False                                |
+| shared          | False                                |
+| status          | ACTIVE                               |
+| subnets         | dd641ea4-4a94-497c-b392-c1cc28d831ec |
+| tenant_id       | 69f39d019d6e4b15a0f48dea264646ef     |
++-----------------+--------------------------------------+
+stack@wstack:~/devstack$ quantum router-interface-add 72a879bd-3f70-4e91-becb-a17b1191a83d dd641ea4-4a94-497c-b392-c1cc28d831ec
+Invalid input for operation: IP address 10.0.0.1 is not a valid IP for the defined subnet.
+
+
+
+stack@wstack:~/devstack$ quantum subnet-create --ip-version 4 --gateway 10.0.0.1 private 10.0.10.0/24
+Created a new subnet:
++------------------+----------------------------------------------+
+| Field            | Value                                        |
++------------------+----------------------------------------------+
+| allocation_pools | {"start": "10.0.10.1", "end": "10.0.10.254"} |
+| cidr             | 10.0.10.0/24                                 |
+| dns_nameservers  |                                              |
+| enable_dhcp      | True                                         |
+| gateway_ip       | 10.0.0.1                                     |
+| host_routes      |                                              |
+| id               | 4287b9bb-440e-4ca7-90ea-c7119d69bb7a         |
+| ip_version       | 4                                            |
+| name             |                                              |
+| network_id       | da940418-988a-484a-a32a-eabad1a62cc4         |
+| tenant_id        | 69f39d019d6e4b15a0f48dea264646ef             |
++------------------+----------------------------------------------+
+
+
+
+stack@wstack:~/devstack$ quantum router-interface-add 72a879bd-3f70-4e91-becb-a17b1191a83d 4287b9bb-440e-4ca7-90ea-c7119d69bb7a
+Invalid input for operation: IP address 10.0.0.1 is not a valid IP for the defined subnet.
+
+
+
+stack@wstack:~/devstack$ quantum subnet-create --ip-version 4 --gateway 10.0.20.1 private 10.0.20.0/24
+Created a new subnet:
++------------------+----------------------------------------------+
+| Field            | Value                                        |
++------------------+----------------------------------------------+
+| allocation_pools | {"start": "10.0.20.2", "end": "10.0.20.254"} |
+| cidr             | 10.0.20.0/24                                 |
+| dns_nameservers  |                                              |
+| enable_dhcp      | True                                         |
+| gateway_ip       | 10.0.20.1                                    |
+| host_routes      |                                              |
+| id               | 78214993-0de5-44ec-b364-a3e7fe5cb031         |
+| ip_version       | 4                                            |
+| name             |                                              |
+| network_id       | da940418-988a-484a-a32a-eabad1a62cc4         |
+| tenant_id        | 69f39d019d6e4b15a0f48dea264646ef             |
++------------------+----------------------------------------------+
+
+
+stack@wstack:~/devstack$ quantum router-interface-add 72a879bd-3f70-4e91-becb-a17b1191a83d 78214993-0de5-44ec-b364-a3e7fe5cb031
+Added interface 121b6830-c1da-460a-b8a3-bb01e524e45e to router 72a879bd-3f70-4e91-becb-a17b1191a83d.
+
+
+```
+
+結線されました。
+
+![](img/network_state.png)
+
+インスタンス起動したら変なサブネットに結びついちゃった。
+
+```
+stack@wstack:~/devstack$ neutron subnet-list
++--------------------------------------+------+----------------+--------------------------------------------------+
+| id                                   | name | cidr           | allocation_pools                                 |
++--------------------------------------+------+----------------+--------------------------------------------------+
+| 20730efe-0e7f-414d-bd9f-1f06342128a8 |      | 192.168.0.0/24 | {"start": "192.168.0.2", "end": "192.168.0.254"} |
+| 4287b9bb-440e-4ca7-90ea-c7119d69bb7a |      | 10.0.10.0/24   | {"start": "10.0.10.1", "end": "10.0.10.254"}     |
+| 78214993-0de5-44ec-b364-a3e7fe5cb031 |      | 10.0.20.0/24   | {"start": "10.0.20.2", "end": "10.0.20.254"}     |
+| dd641ea4-4a94-497c-b392-c1cc28d831ec |      | 10.11.12.0/24  | {"start": "10.11.12.1", "end": "10.11.12.254"}   |
++--------------------------------------+------+----------------+--------------------------------------------------+
+
+stack@wstack:~/devstack$ neutron help | grep subnet
+  subnet-create                  Create a subnet for a given tenant.
+  subnet-delete                  Delete a given subnet.
+  subnet-list                    List networks that belong to a given tenant.
+  subnet-show                    Show information of a given subnet.
+  subnet-update                  Update subnet's information.
+
+
+stack@wstack:~/devstack$ neutron subnet-show 4287b9bb-440e-4ca7-90ea-c7119d69bb7a
++------------------+----------------------------------------------+
+| Field            | Value                                        |
++------------------+----------------------------------------------+
+| allocation_pools | {"start": "10.0.10.1", "end": "10.0.10.254"} |
+| cidr             | 10.0.10.0/24                                 |
+| dns_nameservers  |                                              |
+| enable_dhcp      | True                                         |
+| gateway_ip       | 10.0.0.1                                     |
+| host_routes      |                                              |
+| id               | 4287b9bb-440e-4ca7-90ea-c7119d69bb7a         |
+| ip_version       | 4                                            |
+| name             |                                              |
+| network_id       | da940418-988a-484a-a32a-eabad1a62cc4         |
+| tenant_id        | 69f39d019d6e4b15a0f48dea264646ef             |
++------------------+----------------------------------------------+
+
+デフォゲが間違ってるので修正する。
+
+
+xxxxxxxxxx
+
+```
+
+ちょっとノイズになりそうな定義が増えすぎたので片っ端から削除する。
+
+```
+stack@wstack:~/devstack$ neutron subnet-update 4287b9bb-440e-4ca7-90ea-c7119d69bb7a  --gateway 10.0.10.1
+400-{u'QuantumError': u"Unrecognized attribute(s) 'gateway'"}
+stack@wstack:~/devstack$ neutron subnet-update 4287b9bb-440e-4ca7-90ea-c7119d69bb7a --gateway_ip 10.0.10.1                                                         
+409-{u'QuantumError': u'Gateway ip 10.0.10.1 conflicts with allocation pool 10.0.10.1-10.0.10.254'}
+stack@wstack:~/devstack$ restack
+コマンド 'restack' は見つかりませんでした。もしかして:
+ Command 'rxstack' from package 'regina-rexx' (universe)
+restack: コマンドが見つかりません
+stack@wstack:~/devstack$ neutron subnet-delete 20730efe-0e7f-414d-bd9f-1f06342128a8
+Deleted subnet: 20730efe-0e7f-414d-bd9f-1f06342128a8
+stack@wstack:~/devstack$ neutron subnet-delete 4287b9bb-440e-4ca7-90ea-c7119d69bb7a
+409-{u'QuantumError': u'Unable to complete operation on subnet 4287b9bb-440e-4ca7-90ea-c7119d69bb7a. One or more ports have an IP allocation from this subnet.'}
+stack@wstack:~/devstack$ neutron subnet-delete 4287b9bb-440e-4ca7-90ea-c7119d69bb7a
+Deleted subnet: 4287b9bb-440e-4ca7-90ea-c7119d69bb7a
+stack@wstack:~/devstack$ neutron subnet-delete dd641ea4-4a94-497c-b392-c1cc28d831ec
+Deleted subnet: dd641ea4-4a94-497c-b392-c1cc28d831ec
+stack@wstack:~/devstack$ neutron router-delete router1
+Deleted router: router1
+stack@wstack:~/devstack$ neutron net-delete mynet1
+Deleted network: mynet1
+
+
+
+
+stack@wstack:~/devstack$ sudo ip netns exec qrouter-72a879bd-3f70-4e91-becb-a17b1191a83d iptables -nvL -t nat
+Chain PREROUTING (policy ACCEPT 6 packets, 1624 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+   26  2872 quantum-l3-agent-PREROUTING  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+
+Chain INPUT (policy ACCEPT 24 packets, 2704 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+
+Chain OUTPUT (policy ACCEPT 0 packets, 0 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 quantum-l3-agent-OUTPUT  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+
+Chain POSTROUTING (policy ACCEPT 2 packets, 168 bytes)
+ pkts bytes target     prot opt in     out     source               destination         
+    2   168 quantum-l3-agent-POSTROUTING  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+    2   168 quantum-postrouting-bottom  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+
+Chain quantum-l3-agent-OUTPUT (1 references)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 DNAT       all  --  *      *       0.0.0.0/0            192.168.0.100        to:10.0.20.3
+
+Chain quantum-l3-agent-POSTROUTING (1 references)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 ACCEPT     all  --  !qg-3c17523a-29 !qg-3c17523a-29  0.0.0.0/0            0.0.0.0/0            ! ctstate DNAT
+
+Chain quantum-l3-agent-PREROUTING (1 references)
+ pkts bytes target     prot opt in     out     source               destination         
+   18  1080 REDIRECT   tcp  --  *      *       0.0.0.0/0            169.254.169.254      tcp dpt:80 redir ports 9697
+    2   168 DNAT       all  --  *      *       0.0.0.0/0            192.168.0.100        to:10.0.20.3
+
+Chain quantum-l3-agent-float-snat (1 references)
+ pkts bytes target     prot opt in     out     source               destination         
+    0     0 SNAT       all  --  *      *       10.0.20.3            0.0.0.0/0            to:192.168.0.100
+
+Chain quantum-l3-agent-snat (1 references)
+ pkts bytes target     prot opt in     out     source               destination         
+    2   168 quantum-l3-agent-float-snat  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+    0     0 SNAT       all  --  *      *       10.0.20.0/24         0.0.0.0/0            to:192.168.0.99
+
+Chain quantum-postrouting-bottom (1 references)
+ pkts bytes target     prot opt in     out     source               destination         
+    2   168 quantum-l3-agent-snat  all  --  *      *       0.0.0.0/0            0.0.0.0/0           
+
+
+
+stack@wstack:~/devstack$ sudo ip netns exec qrouter-72a879bd-3f70-4e91-becb-a17b1191a83d ip addr
+16: lo: <LOOPBACK,UP,LOWER_UP> mtu 16436 qdisc noqueue state UNKNOWN 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+17: qg-3c17523a-29: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fa:16:3e:63:e7:93 brd ff:ff:ff:ff:ff:ff
+    inet 192.168.0.99/27 brd 192.168.0.127 scope global qg-3c17523a-29
+    inet 192.168.0.100/32 brd 192.168.0.100 scope global qg-3c17523a-29
+    inet6 fe80::f816:3eff:fe63:e793/64 scope link 
+       valid_lft forever preferred_lft forever
+18: qr-121b6830-c1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UNKNOWN 
+    link/ether fa:16:3e:8b:fd:4b brd ff:ff:ff:ff:ff:ff
+    inet 10.0.20.1/24 brd 10.0.20.255 scope global qr-121b6830-c1
+    inet6 fe80::f816:3eff:fe8b:fd4b/64 scope link 
+       valid_lft forever preferred_lft forever
+
+
+
+stack@wstack:~/devstack$ sudo ovs-vsctl show
+63d51e05-b512-4964-ae6e-11f5ecc8c521
+    Bridge br-ex
+        Port br-ex
+            Interface br-ex
+                type: internal
+        Port "qg-3c17523a-29"
+            Interface "qg-3c17523a-29"
+                type: internal
+    Bridge br-int
+        Port "tape3724794-bf"
+            tag: 1
+            Interface "tape3724794-bf"
+                type: internal
+        Port br-int
+            Interface br-int
+                type: internal
+        Port "qr-121b6830-c1"
+            tag: 1
+            Interface "qr-121b6830-c1"
+                type: internal
+        Port "qvo8838a7aa-f5"
+            tag: 1
+            Interface "qvo8838a7aa-f5"
+    ovs_version: "1.4.0+build0"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
 ## 参考リンク
 
 - [Single Machine Guide - DevStack](http://devstack.org/guides/single-machine.html)
