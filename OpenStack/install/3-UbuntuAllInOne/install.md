@@ -255,11 +255,123 @@ stack@wstack:~/devstack$ quantum router-list
 
 増殖する仕様
 
-qrouter-8c006c82-abc3-46b4-967a-4c310cd4ff3e
-qdhcp-7f9833b2-3764-4352-b0ad-5a47ff6ba20b
+```
 
 
-quantum router-interface-add 8c006c82-abc3-46b4-967a-4c310cd4ff3e 7f9833b2-3764-4352-b0ad-5a47ff6ba20b
+stack@wstack:~/devstack$ ip netns list
+qrouter-7f95083d-2e80-413b-bd1b-5ece1a16f193
+qdhcp-da940418-988a-484a-a32a-eabad1a62cc4
+
+stack@wstack:~/devstack$ neutron router-list
++--------------------------------------+---------+--------------------------------------------------------+
+| id                                   | name    | external_gateway_info                                  |
++--------------------------------------+---------+--------------------------------------------------------+
+| 7f95083d-2e80-413b-bd1b-5ece1a16f193 | router1 | {"network_id": "c23a6e36-977e-4936-932b-75d2dad0bfcf"} |
++--------------------------------------+---------+--------------------------------------------------------+
+
+
+stack@wstack:~/devstack$ neutron net-list
++--------------------------------------+---------+----------------------------------------------------+
+| id                                   | name    | subnets                                            |
++--------------------------------------+---------+----------------------------------------------------+
+| c23a6e36-977e-4936-932b-75d2dad0bfcf | public  | b86dc4ed-89a7-4b1b-8e55-cd97dc98434e               |
+| da940418-988a-484a-a32a-eabad1a62cc4 | private | dd641ea4-4a94-497c-b392-c1cc28d831ec 10.11.12.0/24 |
++--------------------------------------+---------+----------------------------------------------------+
+
+```
+
+Neutron系のコマンド体系を諦めてQuantum系へシフト。
+
+```
+quantum subnet-create --ip-version 4 --gateway 192.168.0.1 04a49673-b5b6-4b1b-bde9-99ad97045a0a 192.168.0.0/24
+
+stack@wstack:~/devstack$ quantum net-create mynet1
+Created a new network:
++-----------------+--------------------------------------+
+| Field           | Value                                |
++-----------------+--------------------------------------+
+| admin_state_up  | True                                 |
+| id              | 04a49673-b5b6-4b1b-bde9-99ad97045a0a |
+| name            | mynet1                               |
+| router:external | False                                |
+| shared          | False                                |
+| status          | ACTIVE                               |
+| subnets         |                                      |
+| tenant_id       | 69f39d019d6e4b15a0f48dea264646ef     |
++-----------------+--------------------------------------+
+
+
+stack@wstack:~/devstack$ quantum subnet-create --ip-version 4 --gateway 192.168.0.1 04a49673-b5b6-4b1b-bde9-99ad97045a0a 192.168.0.0/24
+Created a new subnet:
++------------------+--------------------------------------------------+
+| Field            | Value                                            |
++------------------+--------------------------------------------------+
+| allocation_pools | {"start": "192.168.0.2", "end": "192.168.0.254"} |
+| cidr             | 192.168.0.0/24                                   |
+| dns_nameservers  |                                                  |
+| enable_dhcp      | True                                             |
+| gateway_ip       | 192.168.0.1                                      |
+| host_routes      |                                                  |
+| id               | 20730efe-0e7f-414d-bd9f-1f06342128a8             |
+| ip_version       | 4                                                |
+| name             |                                                  |
+| network_id       | 04a49673-b5b6-4b1b-bde9-99ad97045a0a             |
+| tenant_id        | 69f39d019d6e4b15a0f48dea264646ef                 |
++------------------+--------------------------------------------------+
+
+
+stack@wstack:~/devstack$ quantum router-create myrouter1
+Created a new router:
++-----------------------+--------------------------------------+
+| Field                 | Value                                |
++-----------------------+--------------------------------------+
+| admin_state_up        | True                                 |
+| external_gateway_info |                                      |
+| id                    | 72a879bd-3f70-4e91-becb-a17b1191a83d |
+| name                  | myrouter1                            |
+| status                | ACTIVE                               |
+| tenant_id             | 69f39d019d6e4b15a0f48dea264646ef     |
++-----------------------+--------------------------------------+
+
+ルーターがっちゃんこ
+
+stack@wstack:~/devstack$ quantum router-gateway-set 72a879bd-3f70-4e91-becb-a17b1191a83d c23a6e36-977e-4936-932b-75d2dad0bfcf
+Set gateway for router 72a879bd-3f70-4e91-becb-a17b1191a83d
+```
+
+現在の状態
+
+![](img/network_state.png)
+
+```
+stack@wstack:~/devstack$ ping 192.168.0.98
+PING 192.168.0.98 (192.168.0.98) 56(84) bytes of data.
+64 bytes from 192.168.0.98: icmp_req=1 ttl=64 time=0.299 ms
+64 bytes from 192.168.0.98: icmp_req=2 ttl=64 time=0.049 ms
+64 bytes from 192.168.0.98: icmp_req=3 ttl=64 time=0.055 ms
+^C
+--- 192.168.0.98 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 1998ms
+rtt min/avg/max/mdev = 0.049/0.134/0.299/0.116 ms
+stack@wstack:~/devstack$ ping 192.168.0.99
+PING 192.168.0.99 (192.168.0.99) 56(84) bytes of data.
+64 bytes from 192.168.0.99: icmp_req=1 ttl=64 time=0.327 ms
+64 bytes from 192.168.0.99: icmp_req=2 ttl=64 time=0.045 ms
+64 bytes from 192.168.0.99: icmp_req=3 ttl=64 time=0.054 ms
+^C
+--- 192.168.0.99 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 1999ms
+rtt min/avg/max/mdev = 0.045/0.142/0.327/0.130 ms
+stack@wstack:~/devstack$ ping 192.168.0.100
+PING 192.168.0.100 (192.168.0.100) 56(84) bytes of data.
+^C
+--- 192.168.0.100 ping statistics ---
+2 packets transmitted, 0 received, 100% packet loss, time 999ms
+
+```
+
+pingとぶ
+
 
 ## 参考リンク
 
