@@ -15,8 +15,8 @@ wnoguchiの公開してもいいドキュメントを入れていくリポジト
 業務系アプリ・Webアプリケーション開発全般。ネットワークエンジニア。  
 最近はAWSやOpenStack、RTX1200とかVyatta、VLANを切りまくること、IP電話に興味がある。
 
-アニメ、お昼寝、サーバー構築、トマトジュース、なでしこが好き。  
-Linux、Android、Mac、Windowsが好き。
+アニメ、睡眠、サーバー構築、トマトジュース、なでしこが好き。  
+Linux、Android、Mac、Windowsどれでもいちおう使える。
 
 #### Network Engineering
 
@@ -44,7 +44,7 @@ DNS / Postfix / KVM / CentOS / Ubuntu / bash
 
 ### Social Accounts
 
-Contact me: wnoguchi@pg1x.com
+Contact me: wnoguchi.0727 att gmail.com
 
 #### Organization
 
