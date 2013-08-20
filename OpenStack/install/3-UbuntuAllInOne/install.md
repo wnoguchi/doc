@@ -641,21 +641,70 @@ stack@wstack:~/devstack$ sudo ovs-vsctl show
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 ```
 
 。。。。。わからない。
+
+### 試行錯誤中
+
+いじくりまわしてるうちにpingにもssh接続もできなくなってしまった。  
+しかも決まってstack.shしたときに再現する。  
+リブートしない限り解決できない。  
+なんで。
+
+### 仕切り直し
+
+現在の設定を見なおした。  
+ネットワークのセグメント設定がめちゃくちゃな気がしたので整理した。  
+IPアドレスは16IP幅に設計して、192.168.0.100/28が入るようなネットワークを選択した。  
+この `FLOATING_RANGE` は実際にはグローバルIPになるのかな。  
+とりあえずQuantumはオフにした。  
+これでとりあえずネット繋がるといいなあ。
+
+[ネットワークアドレス計算フォーム（実用版）](http://www.cityjp.com/javascript/network/ipcal.html)
+
+```
+FLOATING_RANGE=192.168.0.96/28
+FIXED_RANGE=10.0.0.0/24
+FIXED_NETWORK_SIZE=256
+FLAT_INTERFACE=eth0
+ADMIN_PASSWORD=supersecret
+MYSQL_PASSWORD=iheartdatabases
+RABBIT_PASSWORD=flopsymopsy
+SERVICE_PASSWORD=iheartksl
+SERVICE_TOKEN=a91e1afd9aef8879326c
+
+# Quantumはとりあえずオフにしておく（問題の切り分けのため）
+#disable_service n-net
+#enable_service q-svc
+#enable_service q-agt
+#enable_service q-dhcp
+#enable_service q-l3
+#enable_service q-meta
+#enable_service neutron
+## Optional, to enable tempest configuration as part of devstack
+#enable_service tempest
+```
+
+ok.
+
+やっぱりping飛ばない。。。
+
+固定IPにしてみる。
+
+むり。
+有効化。
+
+```
+disable_service n-net
+disable_service n-obj
+enable_service q-svc
+enable_service q-agt
+enable_service q-dhcp
+enable_service q-l3
+```
+
+oh god.
 
 ## 参考リンク
 
