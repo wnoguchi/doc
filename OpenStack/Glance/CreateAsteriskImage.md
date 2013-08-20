@@ -1,2 +1,0 @@
-# AsteriskのOpenStackイメージを作成する
-
