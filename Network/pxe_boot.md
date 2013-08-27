@@ -93,4 +93,5 @@ isc-dhcp-server start/running, process 26580
 
 - [PXEでDebian/Ubuntuをネットワークインストール - Shoken OpenSource Society](http://shoken.hatenablog.com/entry/20080306/p1)
 - [PXE使ってUbuntuをネットワークインストール - モーグルとカバとパウダーの日記](http://d.hatena.ne.jp/stealthinu/20110726/p1)
-
+- [PXEInstallServer - Community Ubuntu Documentation](https://help.ubuntu.com/community/PXEInstallServer)
+- [ネットワークで生きる ubuntuでubuntuをネットワークブートでインストール(12.04LTS・dhcp&tftp版)](http://hukuroufc2.blog.fc2.com/blog-entry-52.html)
