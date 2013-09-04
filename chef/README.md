@@ -1,6 +1,23 @@
 # Chef
 
 やるぞ！
+ここではchef-solo。
+
+## インストール
+
+```
+curl -L http://www.opscode.com/chef/install.sh | sudo bash
+```
+
+## レポジトリの作成
+
+```
+git clone git://github.com/opscode/chef-repo.git
+```
+
+```
+knife configure
+```
 
 ## 参考サイト
 
