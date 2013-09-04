@@ -35,9 +35,8 @@ knife cookbook create hello -o cookbooks
 
 ### レシピ編集
 
-```
-vi cookbooks/hello/recipes/default.rb
-
+```ruby
+# cookbooks/hello/recipes/default.rb
 #
 # Cookbook Name:: hello
 # Recipe:: default
@@ -52,9 +51,7 @@ log "Hello, Chef!"
 
 ### 実行するレシピの一覧の定義
 
-```
-vi localhost.json
-
+```json
 // localhost.json
 {
   "run_list": [
@@ -66,7 +63,7 @@ vi localhost.json
 
 ### chef-soloの設定
 
-```
+```ruby
 # solo.rb
 file_cache_path "/tmp/chef-solo"
 cookbook_path [ "/home/wnoguchi/chef-repo/cookbooks" ]
@@ -89,24 +86,26 @@ Chef Client finished, 1 resources updated
 
 zshを入れてみる
 
-```
+```ruby
 package "zsh" do
   action :install
 end
-
 ```
 
 さらにRubyの文法を活用してみる。  
 ちなみにAmazon LinuxではなくてUbuntuでやってるのでパッケージ名はUbuntuのパッケージングリポジトリに載ってる名前でやらないとエラーになるみたい。
 
-```
+```ruby
 %w{zsh gcc make libreadline-dev vim}.each do |pkg|
   package pkg do
     action :install
   end
 end
+```
 
---
+出力は以下のとおり。
+
+```
 Starting Chef Client, version 11.6.0
 Compiling Cookbooks...
 Converging 6 resources
