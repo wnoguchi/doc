@@ -1,7 +1,8 @@
 # Chef
 
-やるぞ！
-ここではchef-solo。
+やるぞ！  
+ここではchef-solo。  
+CentOSはイバラの道らしいのでUbuntu13.04で。
 
 ## Getting Started
 
@@ -24,6 +25,7 @@ knife configure
 ### クックブック作成
 
 ```
+cd chef-repo/
 knife cookbook create hello -o cookbooks
 ** Creating cookbook hello
 ** Creating README for cookbook: hello
@@ -67,7 +69,7 @@ vi localhost.json
 ```
 # solo.rb
 file_cache_path "/tmp/chef-solo"
-cookbook_path [ "/home/unicast/chef-repo/cookbooks" ]
+cookbook_path [ "/home/wnoguchi/chef-repo/cookbooks" ]
 ```
 
 ### 実行
@@ -94,31 +96,35 @@ end
 
 ```
 
-さらに
+さらにRubyの文法を活用してみる。  
 ちなみにAmazon LinuxではなくてUbuntuでやってるのでパッケージ名はUbuntuのパッケージングリポジトリに載ってる名前でやらないとエラーになるみたい。
 
 ```
-%w{zsh gcc make libreadline-dev}.each do |pkg|
+%w{zsh gcc make libreadline-dev vim}.each do |pkg|
   package pkg do
     action :install
   end
 end
 
-
+--
 Starting Chef Client, version 11.6.0
 Compiling Cookbooks...
-Converging 5 resources
+Converging 6 resources
 Recipe: hello::default
   * log[Hello, Chef!] action write
 
-  * package[zsh] action install (up to date)
+  * package[zsh] action install
+    - install version 5.0.0-2ubuntu3 of package zsh
+
   * package[gcc] action install (up to date)
   * package[make] action install (up to date)
   * package[libreadline-dev] action install
     - install version 6.2-9ubuntu1 of package libreadline-dev
 
-Chef Client finished, 2 resources updated
+  * package[vim] action install
+    - install version 2:7.3.547-6ubuntu5 of package vim
 
+Chef Client finished, 4 resources updated
 ```
 
 ## 参考サイト
