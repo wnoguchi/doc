@@ -1,6 +1,5 @@
-# Chef
+# Chefで構成管理
 
-やるぞ！  
 ここではchef-solo。  
 CentOSはイバラの道らしいのでUbuntu13.04で。
 
@@ -409,7 +408,106 @@ Chef Client failed. 3 resources updated
 
 ```
 
-エラー。。。
+エラー。。。  
+Ubuntu仕様に書き直してみる。
+
+```
+# cookbooks/nginx/templates/default/nginx.conf.erb
+
+user www-data;
+worker_processes 4;
+error_log /var/log/nginx/error.log;
+pid /run/nginx.pid;
+
+events {
+  worker_connections 1024;
+}
+
+http {
+  include /etc/nginx/mime.types;
+  default_type application/octet-stream;
+
+  server {
+    listen <%= node['nginx']['port'] %>;
+    server_name localhost;
+    location / {
+      root /usr/share/nginx/html;
+      index index.html index.htm;
+    }
+  }
+}
+
+```
+
+もう一度。
+
+```
+sudo chef-solo -c solo.rb -j ./localhost.json      
+[sudo] password for unicast: 
+Starting Chef Client, version 11.6.0
+Compiling Cookbooks...
+Converging 3 resources
+Recipe: nginx::default
+  * package[nginx] action install (up to date)
+  * service[nginx] action enable (up to date)
+  * service[nginx] action start (up to date)
+  * template[nginx.conf] action create
+    - update content in file /etc/nginx/nginx.conf from 267bcf to c7207c
+        --- /etc/nginx/nginx.conf	2013-09-05 08:57:28.333738529 +0900
+        +++ /tmp/chef-rendered-template20130905-10526-3gql20	2013-09-05 12:21:47.854516784 +0900
+        @@ -1,8 +1,8 @@
+         
+        -user nginx;
+        -worker_processes 1;
+        +user www-data;
+        +worker_processes 4;
+         error_log /var/log/nginx/error.log;
+        -pid /var/run/nginx.pid
+        +pid /run/nginx.pid;
+         
+         events {
+           worker_connections 1024;
+
+  * service[nginx] action reload
+    - reload service service[nginx]
+
+Chef Client finished, 2 resources updated
+
+```
+
+今度はうまく行った。  
+ポートを変えてみる。
+
+```
+sudo chef-solo -c solo.rb -j ./localhost.json
+Starting Chef Client, version 11.6.0
+Compiling Cookbooks...
+Converging 3 resources
+Recipe: nginx::default
+  * package[nginx] action install (up to date)
+  * service[nginx] action enable (up to date)
+  * service[nginx] action start (up to date)
+  * template[nginx.conf] action create
+    - update content in file /etc/nginx/nginx.conf from c7207c to 14074a
+        --- /etc/nginx/nginx.conf	2013-09-05 12:21:47.854516784 +0900
+        +++ /tmp/chef-rendered-template20130905-10918-1r1m3qi	2013-09-05 12:23:09.728528973 +0900
+        @@ -13,7 +13,7 @@
+           default_type application/octet-stream;
+         
+           server {
+        -    listen 80;
+        +    listen 8080;
+             server_name localhost;
+             location / {
+               root /usr/share/nginx/html;
+
+  * service[nginx] action reload
+    - reload service service[nginx]
+
+Chef Client finished, 2 resources updated
+```
+
+よし。
 
 ## 参考サイト
 
