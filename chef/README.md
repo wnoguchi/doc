@@ -509,7 +509,46 @@ Chef Client finished, 2 resources updated
 
 よし。
 
+iptablesをoffにする。
+
+```
+service 'iptables' do
+  action [ :disable, :stop ]
+end
+```
+
+## Vagrant
+
+http://www.vagrantbox.es/
+
+以下はまだやってない。
+
+```
+vagrant box add base http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.3-x86_64-v20130101.box
+mkdir example
+cd example
+vagrant init
+```
+
+```
+# Vagrantfile
+Vagrant::Config.run do |config|
+  config.vm.box = "base"
+  config.vm.network :hostonly, "192.168.50.12"
+(snip)
+```
+
+```
+vagrant up
+```
+
+```
+vagrant ssh
+```
+
 ## 参考サイト
+
+### Chef系
 
 - [Amazon.co.jp： 入門Chef Solo - Infrastructure as Code eBook: 伊藤直也: Kindleストア](http://www.amazon.co.jp/%E5%85%A5%E9%96%80Chef-Solo-Infrastructure-Code-ebook/dp/B00BSPH158)  
 主にこれを参考にさせてもらっています。
@@ -517,3 +556,9 @@ Chef Client finished, 2 resources updated
 - [Rubyist Magazine - Chef でサーバ管理を楽チンにしよう！ (第 1 回)](http://magazine.rubyist.net/?0035-ChefInDECOLOG)
 - [Chef Soloの正しい始め方 | tsuchikazu blog](http://tsuchikazu.net/chef_solo_start/)
 - [Chef Soloと Knife Soloでの　ニコニコサーバー構築 (1):dwango エンジニア ブロマガ:ドワンゴ研究開発チャンネル(ドワンゴグループのエンジニア) - ニコニコチャンネル:生活](http://ch.nicovideo.jp/dwango-engineer/blomaga/ar311555)
+
+### Vagrant系
+
+- [vagrant windows環境でSSH for Teraterm - clash_m45の開発日記](http://d.hatena.ne.jp/clash_m45/20130716/1373975271)
+- [Ruby - Vagrant and Chef on Windows - Qiita [キータ]](http://qiita.com/ogomr/items/98a33f47f6ba050adac4)
+- [Window 7 でVagrantでCent OS 6.3入れてみた - 僕の車輪の再発明](http://kazuph.hateblo.jp/entry/2013/02/05/234243)
