@@ -1,4 +1,6 @@
-# PXE boot
+# PXE boot（PXEサーバーUbuntu編）
+
+失敗した。
 
 ## UbuntuをPXE bootでインストールする
 
