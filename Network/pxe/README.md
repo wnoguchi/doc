@@ -101,9 +101,9 @@ tar xvzf netboot.tar.gz
 
 ### 参考サイト
 
-- http://www.server-world.info/query?os=CentOS_5&p=pxe
-- http://www.server-world.info/query?os=CentOS_5&p=dhcp
-- http://www.maruko2.com/mw/PXE%E3%83%96%E3%83%BC%E3%83%88%E7%94%A8%E3%82%B5%E3%83%BC%E3%83%90%E3%82%92%E6%A7%8B%E7%AF%89%E3%81%99%E3%82%8B
-- http://gihyo.jp/admin/serial/01/ubuntu-recipe/0265
-- http://gihyo.jp/admin/serial/01/ubuntu-recipe/0047
-- http://gihyo.jp/admin/serial/01/ubuntu-recipe/0047?page=2
+- [CentOS 5 - PXEサーバー - 構築/設定 ： Server World](http://www.server-world.info/query?os=CentOS_5&p=pxe)
+- [CentOS 5 - DHCPサーバー - インストール/設定 ： Server World](http://www.server-world.info/query?os=CentOS_5&p=dhcp)
+- [PXEブート用サーバを構築する - maruko2 Note.](http://www.maruko2.com/mw/PXE%E3%83%96%E3%83%BC%E3%83%88%E7%94%A8%E3%82%B5%E3%83%BC%E3%83%90%E3%82%92%E6%A7%8B%E7%AF%89%E3%81%99%E3%82%8B)
+- [第265回　Ubuntu Serverをさらっと用意する方法：Ubuntu Weekly Recipe｜gihyo.jp … 技術評論社](http://gihyo.jp/admin/serial/01/ubuntu-recipe/0265)
+- [第47回　Ubuntuのネットワークインストールとapt-mirrorの活用：Ubuntu Weekly Recipe｜gihyo.jp … 技術評論社](http://gihyo.jp/admin/serial/01/ubuntu-recipe/0047)
+- [第47回　Ubuntuのネットワークインストールとapt-mirrorの活用：Ubuntu Weekly Recipe｜gihyo.jp … 技術評論社](http://gihyo.jp/admin/serial/01/ubuntu-recipe/0047?page=2)
