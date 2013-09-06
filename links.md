@@ -20,3 +20,14 @@ AMIやboxなどの仮想イメージ作成ツール。
 
 - [Packer](http://www.packer.io/)
 - [mitchellh/packer](https://github.com/mitchellh/packer)
+
+## 言語・処理系全般
+
+### C++
+
+- [C++入門](http://www.asahi-net.or.jp/~yf8k-kbys/newcpp0.html)
+
+#### VC++ MFC関連
+
+- [【 G.Ishihara流 】Visual C++ (MFC)超入門](http://www.g-ishihara.com/)
+- [Visual C++ 入門 (MFC)](http://mail2.nara-edu.ac.jp/~asait/visual_cpp/intro_cpp.htm)
