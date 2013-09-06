@@ -536,13 +536,13 @@ the comments in the Vagrantfile as well as documentation on
 `vagrantup.com` for more information on using Vagrant.
 ```
 
-```
+```ruby
 # Vagrantfile
 Vagrant::Config.run do |config|
   config.vm.box = "base"
-(snip)
+#(snip)
   config.vm.network :private_network, ip: "192.168.50.12"
-(snip)
+#(snip)
 ```
 
 ```
@@ -591,6 +591,38 @@ boot  dev     home  lib64  media       opt  root  selinux  sys  usr  var
 ```
 
 ![TeraTermでSSHした様子](img/ssh_teraterm.png)
+
+```
+D:\Users\noguchi\Documents\tmp\example_box>vagrant halt
+[default] Attempting graceful shutdown of VM...
+
+D:\Users\noguchi\Documents\tmp\example_box>vagrant destroy
+Are you sure you want to destroy the 'default' VM? [y/N] y
+[default] Destroying VM and associated drives...
+```
+
+### sahara
+
+```
+>vagrant plugin install sahara
+Installing the 'sahara' plugin. This can take a few minutes...
+Installed the plugin 'sahara (0.0.15)'!
+
+>vagrant up
+
+>vagrant sandbox on
+0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+
+>vagrant sandbox rollback
+0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
+
+>vagrant sandbox commit
+
+>vagrant sandbox off
+
+
+```
 
 ## 参考サイト
 
