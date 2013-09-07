@@ -1,6 +1,13 @@
 # PXE boot（PXEサーバーUbuntu編）
 
-失敗した。
+~~失敗した。~~  
+やっとうまく行った・・・。  
+VMware Fusionでもうまくいくぞお。  
+うん、こんどはaptのミラーサーバー立ててインスコする。
+
+## 構成
+
+- PXEブートサーバー: Ubuntu13.04
 
 ## UbuntuをPXE bootでインストールする
 
@@ -56,6 +63,8 @@ sudo vi /etc/default/dhcp3-server
 INTERFACES="eth0"
 ```
 
+以下の設定じゃ動かなかった。
+
 ```
 sudo vi /etc/dhcp/dhcpd.conf
 
@@ -79,6 +88,30 @@ host rx100s7 {
         }
 ```
 
+仕切り直し。一時的にufw切る。
+
+```
+sudo ufw disable
+```
+
+以下の設定で動いた。
+
+```
+# ↓これ重要な気が・・・
+authoritative;
+
+subnet 192.168.1.0 netmask 255.255.255.0 {
+    option routers 192.168.1.1;
+    option subnet-mask 255.255.255.0;
+    range dynamic-bootp 192.168.1.2 192.168.1.100;
+    filename "/pxelinux.0";
+}
+```
+
+```
+sudo initctl start isc-dhcp-server
+```
+
 ```
 sudo /etc/init.d/isc-dhcp-server restart
 Rather than invoking init scripts through /etc/init.d, use the service(8)
@@ -97,3 +130,15 @@ isc-dhcp-server start/running, process 26580
 - [PXE使ってUbuntuをネットワークインストール - モーグルとカバとパウダーの日記](http://d.hatena.ne.jp/stealthinu/20110726/p1)
 - [PXEInstallServer - Community Ubuntu Documentation](https://help.ubuntu.com/community/PXEInstallServer)
 - [ネットワークで生きる ubuntuでubuntuをネットワークブートでインストール(12.04LTS・dhcp&tftp版)](http://hukuroufc2.blog.fc2.com/blog-entry-52.html)
+- [Ubuntu 13.04 - DHCPサーバー ： Server World](http://www.server-world.info/query?os=Ubuntu_13.04&p=dhcp)
+
+### preseedに関係してくる
+
+- [System Automation – Part 1 – PXE and Preseed](http://www.briancarpio.com/2012/04/04/system-automation-part-1/)
+- [Ubuntu Server を pxe(netboot)+preseed で全自動インストールする - INOHILOG](http://d.hatena.ne.jp/InoHiro/20110830/1314710048)
+- [preseedを使ってDebian GNU/Linux 5.0.4(netinst)のインストール自動化を行う手順 - 富士山は世界遺産](http://d.hatena.ne.jp/fujisan3776/20100630/1277861431)
+
+### 横道それる
+
+[Bootstrap Protocol - Wikipedia](http://ja.wikipedia.org/wiki/Bootstrap_Protocol)
+[BOOTPとは 【 BOOTstrap Protocol 】 - 意味/解説/説明/定義 ： IT用語辞典](http://e-words.jp/w/BOOTP.html)
