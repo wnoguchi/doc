@@ -76,7 +76,6 @@ index 5eab951..14ecb18 100644
 ```
 mkdir -p /var/lib/tftpboot/pxeboot/
 cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/pxeboot/
-mkdir -p /var/lib/tftpboot/pxeboot/
 ```
 
 編集。  
@@ -92,7 +91,7 @@ service dhcpd restart
 
 ```
 cd /var/lib/tftpboot/pxeboot
-wget http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-amd64/current/images/netboot/netboot.tar.gz --net4-only
+wget http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-amd64/current/images/netboot/netboot.tar.gz --inet4-only
 tar xvzf netboot.tar.gz
 ```
 
