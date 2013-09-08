@@ -64,6 +64,12 @@ sudo tar xvzf netboot.tar.gz
 
 ```
 
+これでうまくブートできるはず。  
+ただeth1指定しないとDHCPできない。意味がわからない。  
+NIC2つあるからデフォゲ決められないからかな。
+
+## DHCP関連の設定
+
 以下の設定で動いた。
 
 ```
@@ -96,6 +102,8 @@ sudo initctl start isc-dhcp-server
 - [System Automation – Part 1 – PXE and Preseed](http://www.briancarpio.com/2012/04/04/system-automation-part-1/)
 - [Ubuntu Server を pxe(netboot)+preseed で全自動インストールする - INOHILOG](http://d.hatena.ne.jp/InoHiro/20110830/1314710048)
 - [preseedを使ってDebian GNU/Linux 5.0.4(netinst)のインストール自動化を行う手順 - 富士山は世界遺産](http://d.hatena.ne.jp/fujisan3776/20100630/1277861431)
+- [Foreman Ubuntu 12.04 preseed provision template](https://gist.github.com/antaflos/2931362)
+- [Foreman Ubuntu 12.04 PXE provision template](https://gist.github.com/antaflos/2931367)
 
 ### 横道それる
 
