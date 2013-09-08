@@ -1,27 +1,33 @@
-# PXE boot（PXEサーバーUbuntu編）
+# PXEブートサーバーの構築（Ubuntu PXEサーバー編）
 
-~~失敗した。~~  
-やっとうまく行った・・・。  
-VMware Fusionでもうまくいくぞお。  
-うん、こんどはaptのミラーサーバー立ててインスコする。
+VMware Fusionでもうまくいく。  
+うん、こんどはaptのミラーサーバー立ててインスコしたい。
 
 ## 構成
 
 - PXEブートサーバー: Ubuntu13.04
 
-## UbuntuをPXE bootでインストールする
+## インストール
+
+### DHCP関連
 
 ```
 sudo apt-get -y install dhcp3-server
 ```
 
+### TFTPD関連
+
 ```
 sudo apt-get -y install tftpd-hpa tftp inetutils-inetd
 ```
 
+## TFTP関連の設定
+
+Ubuntu12.04(Precise)のブートイメージをダウンロードしてきてTFTP bootのルートに展開。
+
 ```
 cd /var/lib/tftpboot
-sudo wget http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-amd64/current/images/netboot/netboot.tar.gz
+sudo wget --inet4-only http://archive.ubuntu.com/ubuntu/dists/precise/main/installer-amd64/current/images/netboot/netboot.tar.gz
 sudo tar xvzf netboot.tar.gz
 ./
 ./pxelinux.0
@@ -58,46 +64,11 @@ sudo tar xvzf netboot.tar.gz
 
 ```
 
-```
-sudo vi /etc/default/dhcp3-server
-INTERFACES="eth0"
-```
-
-以下の設定じゃ動かなかった。
-
-```
-sudo vi /etc/dhcp/dhcpd.conf
-
-(snip)
-
-↓以下を追加
-
-allow booting;
-allow bootp;
-
-subnet 192.168.1.0 netmask 255.255.255.0 {
-        range 192.168.1.2 192.168.1.100;
-        option routers 192.168.1.1;
-        option broadcast-address 192.168.1.255;
-        option domain-name-servers 8.8.8.8;
-}
-host rx100s7 {
-        filename "/pxelinux.0";
-        #hardware ethernet 00:0B:xx:xx:xx:xx;
-        fixed-address 192.168.1.70;
-        }
-```
-
-仕切り直し。一時的にufw切る。
-
-```
-sudo ufw disable
-```
-
 以下の設定で動いた。
 
 ```
-# ↓これ重要な気が・・・
+# /etc/dhcp/dhcpd.conf
+
 authoritative;
 
 subnet 192.168.1.0 netmask 255.255.255.0 {
@@ -110,18 +81,6 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 
 ```
 sudo initctl start isc-dhcp-server
-```
-
-```
-sudo /etc/init.d/isc-dhcp-server restart
-Rather than invoking init scripts through /etc/init.d, use the service(8)
-utility, e.g. service isc-dhcp-server restart
-
-Since the script you are attempting to invoke has been converted to an
-Upstart job, you may also use the stop(8) and then start(8) utilities,
-e.g. stop isc-dhcp-server ; start isc-dhcp-server. The restart(8) utility is also available.
-isc-dhcp-server start/running, process 26580
-
 ```
 
 ## 参考リンク
@@ -142,3 +101,4 @@ isc-dhcp-server start/running, process 26580
 
 - [Bootstrap Protocol - Wikipedia](http://ja.wikipedia.org/wiki/Bootstrap_Protocol)
 - [BOOTPとは 【 BOOTstrap Protocol 】 - 意味/解説/説明/定義 ： IT用語辞典](http://e-words.jp/w/BOOTP.html)
+- [Man page of dhcpd.conf](http://linuxjm.sourceforge.jp/html/dhcp2/man5/dhcpd.conf.5.html)
