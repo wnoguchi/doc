@@ -140,5 +140,5 @@ isc-dhcp-server start/running, process 26580
 
 ### 横道それる
 
-[Bootstrap Protocol - Wikipedia](http://ja.wikipedia.org/wiki/Bootstrap_Protocol)
-[BOOTPとは 【 BOOTstrap Protocol 】 - 意味/解説/説明/定義 ： IT用語辞典](http://e-words.jp/w/BOOTP.html)
+- [Bootstrap Protocol - Wikipedia](http://ja.wikipedia.org/wiki/Bootstrap_Protocol)
+- [BOOTPとは 【 BOOTstrap Protocol 】 - 意味/解説/説明/定義 ： IT用語辞典](http://e-words.jp/w/BOOTP.html)
