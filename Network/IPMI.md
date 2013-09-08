@@ -132,6 +132,12 @@ Chassis Power Control: Up/On
 ipmitool  -H "192.168.1.55" -U "admin" power reset
 ```
 
+### パスワード直指定する例
+
+```
+ipmitool  -H "192.168.1.55" -U "admin" -P password power reset
+```
+
 ## その他
 
 ちなみに、ホストOSを再インストールしてもIPMIの設定はサーバーの不揮発メモリに残っているので同じ情報で電源オンオフできます。
