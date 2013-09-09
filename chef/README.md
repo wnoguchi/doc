@@ -624,6 +624,41 @@ Installed the plugin 'sahara (0.0.15)'!
 
 ```
 
+## knife-solo
+
+```
+sudo gem install knife-solo --no-ri --no-rdoc
+
+Building native extensions.  This could take a while...
+ERROR:  Error installing knife-solo:
+	ERROR: Failed to build gem native extension.
+
+        /usr/bin/ruby1.9.1 extconf.rb
+/usr/lib/ruby/1.9.1/rubygems/custom_require.rb:36:in `require': cannot load such file -- mkmf (LoadError)
+	from /usr/lib/ruby/1.9.1/rubygems/custom_require.rb:36:in `require'
+	from extconf.rb:1:in `<main>'
+
+
+
+sudo apt-get -y install ruby-dev
+
+sudo gem install knife-solo --no-ri --no-rdoc
+
+
+gem list knife-solo
+
+*** LOCAL GEMS ***
+
+knife-solo (0.3.0)
+
+
+vi ~/.chef/knife.rb
+
+knife[:solo_path] = '/tmp/chef-solo'
+
+
+```
+
 ## 参考サイト
 
 ### Chef系
@@ -634,6 +669,8 @@ Installed the plugin 'sahara (0.0.15)'!
 - [Rubyist Magazine - Chef でサーバ管理を楽チンにしよう！ (第 1 回)](http://magazine.rubyist.net/?0035-ChefInDECOLOG)
 - [Chef Soloの正しい始め方 | tsuchikazu blog](http://tsuchikazu.net/chef_solo_start/)
 - [Chef Soloと Knife Soloでの　ニコニコサーバー構築 (1):dwango エンジニア ブロマガ:ドワンゴ研究開発チャンネル(ドワンゴグループのエンジニア) - ニコニコチャンネル:生活](http://ch.nicovideo.jp/dwango-engineer/blomaga/ar311555)
+- [Windows7上で Vagrant + Chef solo + knife-soloを使い、Ubuntu + ubuntu-desktopの環境を構築してみた - メモ的な思考的な](http://d.hatena.ne.jp/thinkAmi/20130407/1365310673)
+- [入門Chef Solo - Infrastructure as Code - 達人出版会](http://tatsu-zine.com/books/chef-solo)
 
 ### Vagrant系
 
