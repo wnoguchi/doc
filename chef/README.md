@@ -524,8 +524,12 @@ http://www.vagrantbox.es/
 以下はまだやってない。
 
 ```
+# CentOS 6.3
 vagrant box add base http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.3-x86_64-v20130101.box
 （...とても時間がかかる）
+
+# CentOS 6.4
+vagrant box add base http://developer.nrel.gov/downloads/vagrant-boxes/CentOS-6.4-x86_64-v20130731.box
 
 mkdir example
 cd example
