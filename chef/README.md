@@ -629,6 +629,15 @@ Are you sure you want to destroy the 'default' VM? [y/N] y
 [default] Destroying VM and associated drives...
 ```
 
+コマンドラインからサスペンドもできるらしい。  
+ライフチェンジング。
+
+```
+vagrant suspend
+
+[default] Saving VM state and suspending execution...
+```
+
 Macでsshキー生成してみた。  
 configに流し込む。
 
