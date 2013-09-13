@@ -16,7 +16,9 @@ wnoguchiの公開してもいいドキュメントを入れていくリポジト
 最近はAWSやOpenStack、RTX1200とかVyatta、VLANを切りまくること、IP電話に興味がある。
 
 アニメ、睡眠、サーバー構築、トマトジュース、なでしこが好き。  
-Linux、Android、Mac、Windowsどれでもいちおう使える。
+Linux、Android、Mac、Windowsどれでもいちおう使える。  
+最近はGitHubにどっぷり浸かってる。  
+Contributions Calendarを塗りつぶすのが好き。
 
 #### Network Engineering
 
@@ -41,6 +43,12 @@ Windows / Linux / Mac OS X
 #### Linux/UNIX Technologies
 
 DNS / Postfix / KVM / CentOS / Ubuntu / bash
+
+### Wiki Notations
+
+- MarkdownはGFM以外認められない体になった。
+- Mediawiki
+- Redmine
 
 ### Social Accounts
 
@@ -73,6 +81,10 @@ https://twitter.com/wnoguchi
 
 https://www.facebook.com/watarunoguchi.0727
 
+#### GitHub Pages
+
+http://wnoguchi.github.io/
+
 #### Blog
 
 http://blog.pg1x.com/
@@ -91,3 +103,4 @@ http://tumblr.pg1x.com/
 
 - [GitHub Flavored Markdown · GitHub Help](https://help.github.com/articles/github-flavored-markdown)  
 MacではエディタはMouがよさげ。
+- WindowsはMarkdownPad2有料版のGFMオフライン古ドキュメントがいい。
