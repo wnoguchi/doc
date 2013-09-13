@@ -81,6 +81,10 @@ https://twitter.com/wnoguchi
 
 https://www.facebook.com/watarunoguchi.0727
 
+#### LinkedIn
+
+http://www.linkedin.com/in/wnoguchi
+
 #### GitHub Pages
 
 http://wnoguchi.github.io/
