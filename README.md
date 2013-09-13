@@ -44,7 +44,7 @@ Windows / Linux / Mac OS X
 
 DNS / Postfix / KVM / CentOS / Ubuntu / bash
 
-### Wiki Notations
+#### Wiki Notations
 
 - MarkdownはGFM以外認められない体になった。
 - Mediawiki
