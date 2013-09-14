@@ -143,6 +143,35 @@ ipmitool  -H "192.168.1.55" -U "admin" -P password power reset
 ちなみに、ホストOSを再インストールしてもIPMIの設定はサーバーの不揮発メモリに残っているので同じ情報で電源オンオフできます。
 便利。
 
+## WindowsマシンからIPMIで電源オンオフしたい
+
+Windows版のIPMI Toolはないのか。  
+あった。
+
+[ipmiutil - IPMI Management Utilities](http://ipmiutil.sourceforge.net/)
+
+MSIでインストールしたら楽なのかなって思ってインストールしたらどこにインストールされたのかわからない。。。  
+アイコンも生成されないし、パスも通ってない、それっぽい名前のフォルダも見つからない。  
+仕方ないのでlocate32でファイル検索したら `C:\Program Files (x86)\sourceforge` にインストールされてた。。。  
+これは非常にわかりにくい。
+
+IPMI Toolとは微妙にコマンド体系違うっぽい。
+
+```
+C:\Program Files (x86)\sourceforge\ipmiutil>ipmiutil power -r -N 192.168.10.55 -U admin -P password
+ipmiutil ver 2.91
+ireset ver 2.91
+Opening lan connection to node 192.168.10.55 ...
+Connecting to node  192.168.10.55
+-- BMC version 4.10, IPMI version 2.0
+Power State      = 00   (S0: working)
+ireset: resetting ...
+chassis_reset ok
+ireset: IPMI_Reset ok
+ipmiutil power, completed successfully
+```
+
 ## 参考リンク
 
 - [大量のサーバを管理するために、IPMIのお話｜サイバーエージェント 公式エンジニアブログ](http://ameblo.jp/principia-ca/entry-10983675114.html)
+- [ipmiutil - IPMI Management Utilities](http://ipmiutil.sourceforge.net/)
