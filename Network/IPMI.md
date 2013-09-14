@@ -171,6 +171,39 @@ ireset: IPMI_Reset ok
 ipmiutil power, completed successfully
 ```
 
+## MacからIPMIで電源オンオフしたい
+
+そんなことができるのか。  
+多分無いだろうとおもったけど一応homebrewで探してみる。
+
+```
+localhost:~ noguchiwataru$ brew search ipmi
+ipmitool  ipmiutil  ripmime
+```
+
+あった！
+
+```
+localhost:~ noguchiwataru$ brew install ipmitool
+==> Downloading http://downloads.sourceforge.net/project/ipmitool/ipmitool/1.8.1
+######################################################################## 100.0%
+==> Patching
+patching file configure
+Hunk #1 succeeded at 5030 with fuzz 1.
+==> ./configure --prefix=/usr/local/Cellar/ipmitool/1.8.12 --mandir=/usr/local/C
+==> make install
+🍺  /usr/local/Cellar/ipmitool/1.8.12: 14 files, 1.2M, built in 20 seconds
+```
+
+そして、
+
+```
+localhost:~ noguchiwataru$ ipmitool -H "192.168.1.55" -U "admin" -P password power reset
+Chassis Power Control: Reset
+```
+
+たまらないですね。
+
 ## 参考リンク
 
 - [大量のサーバを管理するために、IPMIのお話｜サイバーエージェント 公式エンジニアブログ](http://ameblo.jp/principia-ca/entry-10983675114.html)
