@@ -151,9 +151,10 @@ Windows版のIPMI Toolはないのか。
 [ipmiutil - IPMI Management Utilities](http://ipmiutil.sourceforge.net/)
 
 MSIでインストールしたら楽なのかなって思ってインストールしたらどこにインストールされたのかわからない。。。  
-アイコンも生成されないし、パスも通ってない、それっぽい名前のフォルダも見つからない。  
+アイコンも生成されないし、~~パスも通ってない~~、それっぽい名前のフォルダも見つからない。  
 仕方ないのでlocate32でファイル検索したら `C:\Program Files (x86)\sourceforge` にインストールされてた。。。  
-これは非常にわかりにくい。
+これは非常にわかりにくい。  
+（後日談）再起動したらパスが通ってた。
 
 IPMI Toolとは微妙にコマンド体系違うっぽい。
 
@@ -169,6 +170,116 @@ ireset: resetting ...
 chassis_reset ok
 ireset: IPMI_Reset ok
 ipmiutil power, completed successfully
+```
+
+### 起動
+
+```
+ipmiutil power -u -N 192.168.1.55 -U admin -P password
+```
+
+### リセット
+
+```
+ipmiutil power -r -N 192.168.1.55 -U admin -P password
+```
+
+### 電源オフ
+
+```
+ipmiutil power -d -N 192.168.1.55 -U admin -P password
+```
+
+### コマンド体系
+
+```
+C:\Users\wnoguchi>ipmiutil -h
+ipmiutil ver 2.91
+Usage: ipmiutil <command> [other options]
+   where <command> is one of the following:
+        alarms  show/set the front panel alarm LEDs and relays
+        leds    show/set the front panel alarm LEDs and relays
+        discover        discover all IPMI servers on this LAN
+        cmd     send a specified raw IPMI command to the BMC
+        config  list/save/restore BMC configuration parameters
+        dcmi    get/set DCMI parameters
+        ekanalyzer      run FRU-EKeying analyzer on FRU files
+        events  decode IPMI events and display them
+        firewall        show/set firmware firewall functions
+        fru     show decoded FRU inventory data, write asset tag
+        fwum    OEM firmware update manager extensions
+        getevt  get IPMI events and display them, event daemon
+        getevent        get IPMI events and display them, event daemon
+        health  check and show the basic health of the IPMI BMC
+        hpm     HPM firmware update manager extensions
+        lan     show/set IPMI LAN parameters and PEF table
+        picmg   show/set picmg extended functions
+        power   issue IPMI reset or power control to the system
+        reset   issue IPMI reset or power control to the system
+        sel     show/clear firmware System Event Log records
+        sensor  show Sensor Data Records, readings, thresholds
+        serial  show/set IPMI Serial & Terminal Mode parameters
+        sol     start/stop an SOL console session
+        smcoem  SuperMicro OEM functions
+        sunoem  Sun OEM functions
+        delloem Dell OEM functions
+        tsol    Tyan SOL console start/stop session
+        wdt     show/set/reset the watchdog timer
+   common IPMI LAN options:
+       -N node  Nodename or IP address of target system
+       -U user  Username for remote node
+       -P/-R pswd  Remote Password
+       -E   use password from Environment IPMI_PASSWORD
+       -F   force driver type (e.g. imb, lan2)
+       -J 0 use lanplus cipher suite 0: 0 thru 14, 3=default
+       -T 1 use auth Type: 1=MD2, 2=MD5(default), 4=Pswd
+       -V 2 use priVilege level: 2=user(default), 4=admin
+       -Y   prompt for remote password
+       -Z   set slave address of local MC
+For help on each command (e.g. 'sel'), enter:
+   ipmiutil sel -?
+ipmiutil , usage or help requested
+```
+
+#### powerサブコマンドのコマンド体系
+
+```
+ipmiutil ver 2.91
+ireset ver 2.91
+Usage: ireset [-bcdDefhkmnoprsuwxy -N node -U user -P/-R pswd -EFTVY]
+ where -c  power Cycles the system
+       -d  powers Down the system
+       -D  soft-shutdown OS and power down
+       -k  do Cold Reset of the BMC firmware
+       -i<str>  set boot Initiator mailbox string
+       -j<num>  set IANA number for boot Initiator
+       -n  sends NMI to the system
+       -o  soft-shutdown OS and reset
+       -r  hard Resets the system
+       -u  powers Up the system
+       -m002000 specific MC (bus 00,sa 20,lun 00)
+       -b  reboots to BIOS Setup
+       -e  reboots to EFI
+       -f  reboots to Floppy/Removable
+       -h  reboots to Hard Disk
+       -p  reboots to PXE via network
+       -s  reboots to Service Partition
+       -v  reboots to DVD/CDROM Media
+       -w  Wait for BMC ready after reset
+       -x  show eXtra debug messages
+       -y  Yes, persist boot options [-befhpms]
+       -N node  Nodename or IP address of target system
+       -U user  Username for remote node
+       -P/-R pswd  Remote Password
+       -E   use password from Environment IPMI_PASSWORD
+       -F   force driver type (e.g. imb, lan2)
+       -J 0 use lanplus cipher suite 0: 0 thru 14, 3=default
+       -T 1 use auth Type: 1=MD2, 2=MD5(default), 4=Pswd
+       -V 2 use priVilege level: 2=user(default), 4=admin
+       -Y   prompt for remote password
+       -Z   set slave address of local MC
+An option is required
+ipmiutil power, invalid parameter
 ```
 
 ## MacからIPMIで電源オンオフしたい
