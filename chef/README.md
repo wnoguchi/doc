@@ -21,7 +21,16 @@ gem 'knife-solo'
 
 ```
 curl -L http://www.opscode.com/chef/install.sh | sudo bash
+Password:  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100  6789  100  6789    0     0  12087      0 --:--:-- --:--:-- --:--:-- 20085
+
+Downloading Chef  for mac_os_x...
+.......................................................................................................................................................................................................................................................................................................
+Thank you for installing Chef!
 ```
+
+最初躓いたんだけど、「おいおい、chefインストールできないじゃん」って思ってたらこれ、最初にsudoかましてるところでcurlの出力にPasswordのプロンプト出てたし。。。パスワード入力してsudo通すようにしたらインストール出来ました。
 
 または
 
