@@ -115,7 +115,7 @@ Conversion	Shift Up	ConvertPrevPage
 Conversion	Space	ConvertNext
 Conversion	Tab	PredictAndConvert
 Conversion	Up	ConvertPrev
-DirectInput	Eisu	IMEOn
+DirectInput	Hiragana	IMEOn
 DirectInput	F13	IMEOn
 DirectInput	Hankaku/Zenkaku	IMEOn
 DirectInput	Henkan	Reconvert
@@ -147,5 +147,5 @@ DirectInput	Kanji	IMEOn
 DirectInput	ON	IMEOn
 Precomposition	ASCII	InsertCharacter
 Precomposition	Kanji	IMEOff
-Precomposition	OFF	IMEOff
+Precomposition	Eisu	IMEOff
 Precomposition	ON	IMEOn
