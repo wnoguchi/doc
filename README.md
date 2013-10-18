@@ -96,15 +96,3 @@ http://blog.pg1x.com/
 #### Tumblr
 
 http://tumblr.pg1x.com/
-
-## Links
-
-### ネットワーク系
-
-- [ネットワークアドレス計算フォーム（実用版）](http://www.cityjp.com/javascript/network/ipcal.html)
-
-### Markdown
-
-- [GitHub Flavored Markdown · GitHub Help](https://help.github.com/articles/github-flavored-markdown)  
-MacではエディタはMouがよさげ。
-- WindowsはMarkdownPad2有料版のGFMオフライン古ドキュメントがいい。
