@@ -9,7 +9,7 @@ wnoguchiの公開してもいいドキュメントを入れていくリポジト
 
 ### Introduction
 
-なんとかしがみついて生きてるシステムエンジニア。  
+とりあえずシステムエンジニア。  
 どちらかというとネットワークやサーバー構築などのインフラ関係の事のほうが好きです。  
 
 業務系アプリ・Webアプリケーション開発全般。ネットワークエンジニア。  
@@ -17,12 +17,11 @@ wnoguchiの公開してもいいドキュメントを入れていくリポジト
 
 アニメ、睡眠、サーバー構築、トマトジュース、なでしこが好き。  
 Linux、Android、Mac、Windowsどれでもいちおう使える。  
-最近はGitHubにどっぷり浸かってる。  
-Contributions Calendarを塗りつぶすのが好き。
+GitHubのContributions Calendarを塗りつぶすのが好き。
 
 #### Network Engineering
 
-Linux / CentOS / Ubuntu / 仮想化技術(VPS) / KVM / サーバー構築全般 / Nagios, cacti / Postfixメールサーバー / BIND DNS / SSL証明書 / Vyatta / RTX1200 / VLANネットワーク構築 / VPN構築 / Asterisk内線構築
+Linux / CentOS / Ubuntu / 仮想化技術(VPS) / KVM / サーバー構築全般 / Nagios, cacti / Postfixメールサーバー / BIND DNS / SSL証明書 / Vyatta / RTX1200 / VLANネットワーク構築 / VPN構築 / Asterisk
 
 #### Language
 
@@ -46,20 +45,22 @@ DNS / Postfix / KVM / CentOS / Ubuntu / bash
 
 #### Wiki Notations
 
-- MarkdownはGFM以外認められない体になった。
+- Markdown: GFM Main.
 - Mediawiki
 - Redmine
 
 ### Social Accounts
 
-Contact me: wnoguchi.0727 att gmail.com
+* Contact me: wnoguchi.0727 att gmail.com
+* http://wnoguchi.github.io/
 
 #### Organization
 
 株式会社ユニキャストに所属。  
 ネットワークインフラ周り〜システム開発まで幅広く担当させていただいています。  
-http://www.unicast.ne.jp/  
-http://lab.unicast.ne.jp/
+
+* http://www.unicast.ne.jp/
+* http://lab.unicast.ne.jp/
 
 #### GitHub
 
@@ -85,13 +86,9 @@ https://www.facebook.com/watarunoguchi.0727
 
 http://www.linkedin.com/in/wnoguchi
 
-#### GitHub Pages
-
-http://wnoguchi.github.io/
-
 #### Blog
 
-http://blog.pg1x.com/
+* http://wnoguchi.hatenablog.com/
 
 #### Tumblr
 
