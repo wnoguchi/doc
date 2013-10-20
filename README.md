@@ -62,9 +62,10 @@ DNS / Postfix / KVM / CentOS / Ubuntu / bash
 * http://www.unicast.ne.jp/
 * http://lab.unicast.ne.jp/
 
-#### GitHub
+#### GitHub & Bitbucket
 
-https://github.com/wnoguchi
+* GitHub: https://github.com/wnoguchi
+* Bitbucket: https://bitbucket.org/wnoguchi
 
 #### Gist
 
