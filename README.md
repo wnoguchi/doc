@@ -15,6 +15,8 @@ wnoguchiの公開してもいいドキュメントを入れていくリポジト
 業務系アプリ・Webアプリケーション開発全般。ネットワークエンジニア。  
 最近はAWSやOpenStack、RTX1200とかVyatta、VLANを切りまくること、IP電話に興味がある。
 
+Chefを勉強中。
+
 アニメ、睡眠、サーバー構築、トマトジュース、なでしこが好き。  
 Linux、Android、Mac、Windowsどれでもいちおう使える。  
 GitHubのContributions Calendarを塗りつぶすのが好き。
