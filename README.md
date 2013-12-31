@@ -1,6 +1,8 @@
-# Documents Repository
+Documents Repository
+======================
 
-## Abstract
+Abstract
+----------
 
 wnoguchiの公開してもいいドキュメントを入れていくリポジトリです。  
 とりあえず何の役にも立たない駄文をメモっていくのに使います。
