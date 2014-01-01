@@ -37,9 +37,8 @@ Chefを勉強中。
 
 アニメ、睡眠、サーバー構築、トマトジュース、なでしこが好き。  
 Linux、Android、Mac、Windowsどれでもいちおう使える。  
-GitHubのContributions Calendarを塗りつぶすのが好き。
-
-自宅では白衣を着用。
+GitHubのContributions Calendarを塗りつぶすのが好き。  
+うつ病もち。
 
 #### Network Engineering
 
