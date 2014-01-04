@@ -52,12 +52,6 @@ Windows / Linux / Mac OS X
 
 DNS / Postfix / KVM / CentOS / Ubuntu / bash
 
-#### Wiki Notations
-
-- Markdown: GFM Main.
-- Mediawiki
-- Redmine
-
 ### Social Accounts
 
 * Contact me: wnoguchi.0727 att gmail.com
