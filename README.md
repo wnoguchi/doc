@@ -28,6 +28,8 @@ Linux、Android、Mac、Windowsどれでもいちおう使える。
 GitHubのContributions Calendarを塗りつぶすのが好き。  
 うつ病もち。
 
+---------------------------------------------------------------------------------
+
 #### Network Engineering
 
 Linux / CentOS / Ubuntu / 仮想化技術(VPS) / KVM / サーバー構築全般 / Nagios, cacti / Postfixメールサーバー / BIND DNS / SSL証明書 / Vyatta / RTX1200 / VLANネットワーク構築 / VPN構築 / Asterisk
