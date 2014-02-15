@@ -4,8 +4,7 @@ Documents Repository
 Abstract
 ----------
 
-wnoguchiの公開してもいいドキュメントを入れていくリポジトリです。  
-とりあえず何の役にも立たない駄文をメモっていくのに使います。
+wnoguchiの公開してもいいドキュメントを入れていくリポジトリです。
 
 About me
 ----------
@@ -19,7 +18,7 @@ About me
 最近はAWSなどのクラウドインフラ、RTX1200とかVyatta等のルーターでVPNや、VLANを構成するに興味がある。  
 少しずつインフラの管理はChefで管理するようになれてきた。
 
-最近は個人で少しずつAWSの勉強を進めている。
+最近は個人で少しずつAWS等のインフラの勉強を進めている。
 
 事務処理は主に「なでしこ」でこなす。  [日本語プログラム言語「なでしこ」公式ページ](http://nadesi.com/)
 
@@ -40,11 +39,11 @@ Ruby / Java / PHP / C# / VB.NET / VBA（Excelマクロメイン） / Flex / C++ 
 
 #### Database
 
-MySQL, PostgreSQL, SQL Server, Oracle
+MySQL, SQL Server
 
 #### Framework
 
-Ruby on Rails / Struts / CakePHP / jQuery / ASP.NET / Swing / Flex / prototype.js
+Ruby on Rails / Struts / CakePHP / jQuery / ASP.NET / Swing / Flex
 
 #### OS
 
@@ -61,20 +60,13 @@ DNS / Postfix / KVM / CentOS / Ubuntu / bash
 
 #### Organization
 
-株式会社ユニキャストに所属。  
-ネットワークインフラ周り〜システム開発まで幅広く担当させていただいています。  
-
-* http://www.unicast.ne.jp/
 * http://lab.unicast.ne.jp/
 
 #### GitHub & Bitbucket
 
 * GitHub: https://github.com/wnoguchi
+* Gist: https://gist.github.com/wnoguchi
 * Bitbucket: https://bitbucket.org/wnoguchi
-
-#### Gist
-
-https://gist.github.com/wnoguchi
 
 #### Qiita
 
@@ -94,7 +86,7 @@ http://www.linkedin.com/in/wnoguchi
 
 #### Blog
 
-* http://wnoguchi.hatenablog.com/
+* http://blog.pg1x.com/
 
 #### Tumblr
 
