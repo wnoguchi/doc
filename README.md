@@ -64,9 +64,9 @@ DNS / Postfix / KVM / CentOS / Ubuntu / bash
 
 #### GitHub & Bitbucket
 
-* GitHub: https://github.com/wnoguchi
-* Gist: https://gist.github.com/wnoguchi
-* Bitbucket: https://bitbucket.org/wnoguchi
+- GitHub: https://github.com/wnoguchi
+- Gist: https://gist.github.com/wnoguchi
+- Bitbucket: https://bitbucket.org/wnoguchi
 
 #### Qiita
 
@@ -86,7 +86,7 @@ http://www.linkedin.com/in/wnoguchi
 
 #### Blog
 
-* http://blog.pg1x.com/
+http://blog.pg1x.com/
 
 #### Tumblr
 
