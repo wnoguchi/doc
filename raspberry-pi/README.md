@@ -36,5 +36,8 @@ Archive:  2014-01-07-wheezy-raspbian.zip
 [noguchiwataru@Macintosh] ~/Downloads
 % sudo dd if=~/Downloads/2014-01-07-wheezy-raspbian.img of=/dev/disk1 bs=4m
 Password:
+706+1 records in
+706+1 records out
+2962227200 bytes transferred in 1478.284275 secs (2003828 bytes/sec)
 ```
 
