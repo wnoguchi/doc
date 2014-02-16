@@ -41,3 +41,7 @@ Password:
 2962227200 bytes transferred in 1478.284275 secs (2003828 bytes/sec)
 ```
 
+References
+------------
+
+- [Raspberry Pi初期設定 « 備忘録](http://unix-like.dyndns-web.com/?p=407)
