@@ -2,7 +2,7 @@ Raspberry Pi
 ==============
 
 - Model B
-- 給電はmicro USB タイプAからおこなう（PoEハブがあるならそれでもよさげ）
+- 給電はmicro USB タイプAからおこなう
 - ディスプレイ出力は HDMI-DVI
 - セルフパワータイプのUSBハブを購入することを強く推奨
 
