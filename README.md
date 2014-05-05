@@ -60,7 +60,7 @@ DNS / Postfix / KVM / CentOS / Ubuntu / bash
 
 #### Organization
 
-* http://lab.unicast.ne.jp/
+* http://www.unitrust.co.jp/
 
 #### GitHub & Bitbucket
 
