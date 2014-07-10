@@ -58,10 +58,6 @@ DNS / Postfix / KVM / CentOS / Ubuntu / bash
 * Contact me: wnoguchi.0727 att gmail.com
 * http://wnoguchi.github.io/
 
-#### Organization
-
-* http://www.unitrust.co.jp/
-
 #### GitHub & Bitbucket
 
 - GitHub: https://github.com/wnoguchi
