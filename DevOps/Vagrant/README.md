@@ -1,6 +1,10 @@
 Vagrant
 =========
 
+```
+vagrant ssh-config --host foobar | tee -a ~/.ssh/config
+```
+
 やっと余裕が出てきたので、最近戯れてなかったVagrantをバージョンアップしてみようという気になった。
 
 インストール前
