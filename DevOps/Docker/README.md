@@ -360,6 +360,24 @@ hello world
 
 コンテナID、コンテナ名でもどちらでもいけるようだ。
 
+#### 片付けする
+
+もう用済みなのでコンテナを停止する。
+
+```
+[vagrant@localhost ~]$ sudo docker stop hopeful_darwin
+hopeful_darwin
+```
+
+停まったか確認する。
+
+```
+[vagrant@localhost ~]$ sudo docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
+
+すばらしい。今日はここまで。
+
 References
 ------------
 
