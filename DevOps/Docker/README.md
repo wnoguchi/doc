@@ -242,6 +242,124 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 残ってる。
 やばいおもしろい。
 
+Getting Started with Docker Hub
+----------------------------------
+
+[Getting Started with Docker Hub - Docker Documentation](https://docs.docker.com/userguide/dockerhub/)
+
+Docker Hubに登録する。  
+登録は簡単だった。
+
+![](welcome_page.png)
+
+![](summary.png)
+
+Dockerizing Applications: A "Hello world"
+-------------------------------------------
+
+[Dockerizing Applications - Docker Documentation](https://docs.docker.com/userguide/dockerizing/)
+
+Dockerはコンテナ内でのアプリケーション実行を可能とする。
+
+```
+[vagrant@localhost ~]$ sudo docker run ubuntu:14.04 /bin/echo 'Hello world'
+Unable to find image 'ubuntu:14.04' locally
+Pulling repository ubuntu
+e54ca5efa2e9: Download complete
+511136ea3c5a: Download complete
+d7ac5e4f1812: Download complete
+2f4b4d6a4a06: Download complete
+83ff768040a0: Download complete
+6c37f792ddac: Download complete
+Hello world
+```
+
+Dockerは `ubuntu:14.04` というイメージ名のものがローカルに存在することを確認し、
+存在しなければ Docker Hub からダウンロードしてくる。
+
+イメージの取得が終わればDockerは `/bin/echo 'Hello world'` を実行し、  
+そのコマンドの実行が終了すればただちにコンテナを終了するようになっている。  
+つまりHello worldと表示して終わり。
+
+`-t` で擬似端末を割り当てて、 `-i` でDockerコンテナに対する標準入力を開いたままにする。つまりインタラクティブ。
+
+```
+[vagrant@localhost ~]$ sudo docker run -t -i ubuntu:14.04 /bin/bash
+root@d857fbed59d2:/# pwd
+/
+root@d857fbed59d2:/# ls -F
+bin/  boot/  dev/  etc/  home/	lib/  lib64/  media/  mnt/  opt/  proc/  root/	run/  sbin/  srv/  sys/  tmp/  usr/  var/
+root@d857fbed59d2:/# exit
+exit
+```
+
+今度はコンテナ内のbashのプロセスが終了するタイミングでコンテナが停止した。  
+`docker ps` してみるとおもしろい。
+
+```
+[vagrant@localhost ~]$ sudo docker ps -a
+CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS                          PORTS               NAMES
+d857fbed59d2        ubuntu:14.04        /bin/bash              2 minutes ago       Exited (0) About a minute ago                       sad_engelbart
+b122a6b2cb7f        ubuntu:14.04        /bin/echo 'Hello wor   3 minutes ago       Exited (0) 3 minutes ago                            drunk_pasteur
+59d7660a51a8        centos:latest       /bin/bash              24 hours ago        Exited (0) 23 hours ago                             clever_nobel
+```
+
+### デーモン化してみる
+
+```
+[vagrant@localhost ~]$ sudo docker run -d ubuntu:14.04 /bin/sh -c "while true; do echo hello world; sleep 1; done"
+d9b0c80c495d41a11d8c552d39ceac65ed21b39a3d5adc695cf181d13dd9863c
+```
+
+1秒おきにhello worldを出力するジョブを半永久的に実行するコンテナで、これは `-d` オプションにてバックグラウンドで実行されるようになる。
+
+hello worldは1つも標準出力に出てこない代わりにハッシュ値が得られた。  
+これがコンテナIDというらしい。  
+Gitのコミットハッシュみたいに先頭数桁使えばいけるのかな？
+
+```
+[vagrant@localhost ~]$ echo d9b0c80c495d41a11d8c552d39ceac65ed21b39a3d5adc695cf181d13dd9863c | wc -m
+65
+```
+
+ちなみに65桁で構成されているようだ。
+
+`docker ps` してみるとコンテナは終了せずに動き続けていることが分かる。
+
+```
+[vagrant@localhost ~]$ sudo docker ps
+CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS              PORTS               NAMES
+d9b0c80c495d        ubuntu:14.04        /bin/sh -c 'while tr   2 minutes ago       Up 2 minutes                            hopeful_darwin
+```
+
+コンテナ名は便宜的に hopeful_darwin と付けられている。期待のMac OS X？英語のジョークはよくわからないな。
+
+これじゃコンテナ内でどうなっているかわからないから `docker logs` コマンドを発行してみる。
+
+```
+[vagrant@localhost ~]$ sudo docker logs d9b0c80c495
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+[vagrant@localhost ~]$ sudo docker logs hopeful_darwin
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+hello world
+```
+
+コンテナID、コンテナ名でもどちらでもいけるようだ。
+
 References
 ------------
 
