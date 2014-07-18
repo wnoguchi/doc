@@ -6,7 +6,10 @@ Abstract
 
 wnoguchiの脳外index。
 
-[About Me](AboutMe.md)
+### 自己満足リンク集
+
+1. [About Me](AboutMe.md)
+1. [勉強会参加の記録](https://github.com/wnoguchi/workshop)
 
 TOC
 -----
