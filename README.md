@@ -21,6 +21,7 @@ TOC
 ### Infrastructure
 
 1. [Amazon Web Services](Infrastructure/AWS/README.md)
+1. [Network](Infrastructure/Network/README.md)
 
 Shortcut to useful entries
 ----------------------------
