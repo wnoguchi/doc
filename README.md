@@ -27,11 +27,6 @@ Shortcut to useful entries
 ----------------------------
 
 1. [戦場のプログラマー](http://blog.pg1x.com/)
-
-### Git
-
-1. [Linux - Gitをインストールしたら真っ先にやっておくべき初期設定 - Qiita](http://qiita.com/wnoguchi/items/f7358a227dfe2640cce3)
-
-### .gitignore
-
-1. [ぼくのかんがえたさいきょうの .gitignore - 戦場のプログラマー](http://blog.pg1x.com/entry/2014/05/05/194119)
+1. [Gitの初期設定](http://qiita.com/wnoguchi/items/f7358a227dfe2640cce3)
+1. [.gitignore](https://gist.github.com/wnoguchi/36cc49a9590cbec4aba3)
+1. [Insecure Dev. SSH config](https://gist.github.com/wnoguchi/125cf794554ab10316b6)
