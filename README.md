@@ -26,6 +26,7 @@ TOC
 Shortcut to useful entries
 ----------------------------
 
+1. [wnoguchi's Gists](https://gist.github.com/wnoguchi)
 1. [戦場のプログラマー](http://blog.pg1x.com/)
 1. [Gitの初期設定](http://qiita.com/wnoguchi/items/f7358a227dfe2640cce3)
 1. [.gitignore](https://gist.github.com/wnoguchi/36cc49a9590cbec4aba3)
