@@ -94,6 +94,29 @@ xxx.xxx.xxx.xxx
 ec2-xxx-xxx-xxx-xxx.ap-northeast-1.compute.amazonaws.com
 ```
 
+### 指定した値に Name が部分一致（正確にはマッチ）するインスタンス情報を取得する
+
+`test` というName属性値にマッチするインスタンス情報を列挙する例。
+
+```
+% aws ec2 describe-instances | jq '.Reservations [] .Instances [] | select(has("Tags") and (.Tags [] | .Key == "Name" and (.Value | index("test") != null)))'
+```
+
+### すべてのインスタンス情報を主要な属性のみ絞り込んで取得する
+
+```
+% aws ec2 describe-instances | jq '.Reservations [] .Instances [] | { Name: (if has("Tags") then (.Tags [] | select(.Key == "Name") | .Value) else null end), InstanceId: .InstanceId, PublicDnsName: .PublicDnsName, PublicIpAddress: .PublicIpAddress, State: .State .Name, InstanceType: .InstanceType, AvailabilityZone: .Placement .AvailabilityZone }'
+```
+
+### 指定した値に Name が部分一致（正確にはマッチ）するインスタンス情報を取得する（主要な属性のみ）
+
+`test` というName属性値にマッチするインスタンス情報を列挙する例。  
+上の属性絞り込みの合わせ技。黒魔術・・・。
+
+```
+% aws ec2 describe-instances | jq '.Reservations [] .Instances [] | select(has("Tags") and (.Tags [] | .Key == "Name" and (.Value | index("test") != null))) | { Name: (.Tags [] | select(.Key == "Name") | .Value), InstanceId: .InstanceId, PublicDnsName: .PublicDnsName, PublicIpAddress: .PublicIpAddress, State: .State .Name, InstanceType: .InstanceType, AvailabilityZone: .Placement .AvailabilityZone }'
+```
+
 SSHで接続するとき
 ------------------
 
