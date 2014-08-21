@@ -70,6 +70,16 @@ stopped
 % aws ec2 terminate-instances --instance-ids i-xxxxxxxx | jq '.'
 ```
 
+### インスタンスをタグの値で絞り込む
+
+タグ Name の値について `test` という値に部分一致するインスタンスの情報を取得する。  
+ワイルドカードが使えるっぽい。  
+jq で後から絞り込みをかけるより、こちらのほうがAWS流でスマートかもしれない。
+
+```
+aws ec2 describe-instances --filters Name=tag-key,Values=Name Name=tag-value,Values="*test*"
+```
+
 jqで欲しい値をとってくる
 -------------------------
 
