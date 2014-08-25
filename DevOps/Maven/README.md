@@ -235,6 +235,10 @@ Choose a number or apply filter (format: [groupId:]artifactId, case sensitive co
 
 **TODO**
 
+```
+mvn -Declipse.workspace=/Users/wnoguchi/Documents/workspace eclipse:add-maven-repo
+```
+
 Tips
 ------
 
