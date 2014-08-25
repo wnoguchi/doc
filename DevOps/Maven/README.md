@@ -233,10 +233,16 @@ Choose a number or apply filter (format: [groupId:]artifactId, case sensitive co
 
 ### Eclipse 連携
 
-**TODO**
+- `M2_REPO` 変数の設定。
 
 ```
 mvn -Declipse.workspace=/Users/wnoguchi/Documents/workspace eclipse:add-maven-repo
+```
+
+- Maven プロジェクトを Eclipse プロジェクトに変換
+
+```
+mvn eclipse:eclipse
 ```
 
 Tips
