@@ -245,6 +245,75 @@ mvn -Declipse.workspace=/Users/wnoguchi/Documents/workspace eclipse:add-maven-re
 mvn eclipse:eclipse
 ```
 
+### 実践的アプリケーション開発
+
+```
+mvn archetype:generate -DgroupId=com.pg1x.webchat \
+                       -DartifactId=webchat \
+                       -DarchetypeArtifactId=maven-archetype-webapp
+```
+
+```
+[wnoguchi@noguchiwataru-no-MacBook-Pro] ~/Documents/tmp/maven/webchat
+% tree
+.
+├── pom.xml
+└── src
+    └── main
+        ├── resources
+        └── webapp
+            ├── WEB-INF
+            │   └── web.xml
+            └── index.jsp
+
+5 directories, 3 files
+[wnoguchi@noguchiwataru-no-MacBook-Pro] ~/Documents/tmp/maven/webchat
+% mkdir -p src/main/java/com/pg1x/webchat
+```
+
+#### pom.xml
+
+```
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.pg1x.webchat</groupId>
+  <artifactId>webchat</artifactId>
+  <packaging>war</packaging>
+  <version>1.0</version>
+  <name>webchat Maven Webapp</name>
+  <url></url>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>webchat</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+```
+
+して
+
+```
+mvn eclipse:eclipse
+```
+
 Tips
 ------
 
