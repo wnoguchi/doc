@@ -314,6 +314,22 @@ mvn archetype:generate -DgroupId=com.pg1x.webchat \
 mvn eclipse:eclipse
 ```
 
+### Seasar2 + SAStruts の Maven プロジェクトを生成する
+
+```
+mvn archetype:generate -DarchetypeRepository=http://maven.seasar.org/maven2/ \
+    -DarchetypeGroupId=org.seasar.sastruts \
+    -DarchetypeArtifactId=sa-struts-archetype -DarchetypeVersion=1.0.4-sp9.1 \
+    -DgroupId=com.pg1x.s2sample -DartifactId=s2sample -Dversion=1.0-SNAPSHOT
+```
+
+- [Super Agile Struts](http://sastruts.seasar.org/mavenArchetype.html)
+- [Index of /maven2/org/seasar/sastruts/sa-struts-archetype/](http://maven.seasar.org/maven2/org/seasar/sastruts/sa-struts-archetype/)
+
+```
+mvn eclipse:eclipse
+```
+
 Tips
 ------
 
